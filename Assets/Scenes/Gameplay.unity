@@ -206,6 +206,7 @@ GameObject:
   - component: {fileID: 93257325}
   - component: {fileID: 93257324}
   - component: {fileID: 93257326}
+  - component: {fileID: 93257327}
   m_Layer: 5
   m_Name: BoxesRow
   m_TagString: Untagged
@@ -300,6 +301,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &93257327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 93257322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097dd811686a200438fb124ef136f19e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boxes.ServiceBox
+  acceptedSymbolType: 0
+  backgroundImage: {fileID: 0}
 --- !u!1 &154934408
 GameObject:
   m_ObjectHideFlags: 0
@@ -519,6 +534,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1316036108}
+  - component: {fileID: 1316036109}
   m_Layer: 0
   m_Name: LetterSpawner
   m_TagString: Untagged
@@ -541,6 +557,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1316036109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316036107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 970b3737e2c87674cbb1bf156f10583c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Letters.LetterSpawner
+  letterPrefab: {fileID: 7149193216698293777, guid: d82dedfa3eb66734085d74bbee735072, type: 3}
+  spawnParent: {fileID: 1917489157}
+  spawnInterval: 1.5
+  spawnOnStart: 1
 --- !u!1 &1547541935
 GameObject:
   m_ObjectHideFlags: 0
