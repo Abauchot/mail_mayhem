@@ -3,23 +3,32 @@
     "name": "MailMayhem_Inputs",
     "maps": [
         {
-            "name": "UI",
-            "id": "8b860e4e-b537-4a1b-bd8a-f08e18e13601",
+            "name": "Gameplay_Mobile",
+            "id": "a1ed2a61-2e07-415e-a492-b1bb8f182a03",
             "actions": [
                 {
                     "name": "Point",
-                    "type": "Value",
-                    "id": "9b10dd4b-3591-4cc0-a9da-5c5fc9444889",
+                    "type": "PassThrough",
+                    "id": "9216f511-52ce-43ed-b747-465f98244672",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Click",
+                    "name": "Press",
+                    "type": "Button",
+                    "id": "fecadb8b-45c2-4b49-bdec-d7dcbfbec383",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Delta",
                     "type": "PassThrough",
-                    "id": "e976fe1f-c810-464d-a27c-5baa8adf5599",
-                    "expectedControlType": "Button",
+                    "id": "53bc77cc-4277-4be2-8b37-265874a594af",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -28,50 +37,150 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "9861352a-1e2e-4c7b-8ecd-0c94f63df383",
-                    "path": "<Mouse>/position",
+                    "id": "ab8c26c8-3ee0-4fee-a2f1-d8dc30fa448f",
+                    "path": "<Pointer>/position",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";Mobile",
                     "action": "Point",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "d1e64248-b36a-4d89-82ac-5ad122158990",
-                    "path": "<Touchscreen>/primaryTouch/position",
+                    "id": "159c87be-4bf8-4108-8535-d1d5d19ff90b",
+                    "path": "<Pointer>/press",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Point",
+                    "groups": ";Mobile",
+                    "action": "Press",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "b3b1b987-fa52-464b-b821-611409327716",
-                    "path": "<Mouse>/leftButton",
+                    "id": "b27aee63-0400-4274-a6bb-4f5d557c96a9",
+                    "path": "<Pointer>/delta",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Click",
+                    "groups": ";Mobile",
+                    "action": "Delta",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Gameplay_PC",
+            "id": "2cd56583-b1c3-4f20-abe3-b01948d8ff1e",
+            "actions": [
+                {
+                    "name": "SendLeft",
+                    "type": "Button",
+                    "id": "b595a89a-df87-4a2b-b816-8036d62cc534",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SendUp",
+                    "type": "Button",
+                    "id": "d7d3c752-60c5-4c2e-8973-24fe2f36d99d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SendRight",
+                    "type": "Button",
+                    "id": "e68c0c28-db1a-4b0f-902f-3d7dd0e842cb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SendDown",
+                    "type": "Button",
+                    "id": "110c10cc-0867-4c5f-8c33-b3142223a411",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a7ec4046-c891-41c8-a9ac-ef975f3fffef",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "SendLeft",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "f8e27622-ce79-407f-9dfc-a792df6accb4",
-                    "path": "<Touchscreen>/Press",
+                    "id": "e569c0b1-6bd3-46e9-aee1-d23a88566212",
+                    "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Click",
+                    "groups": ";PC",
+                    "action": "SendUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d7071d4-e2fa-4ab3-aaa2-ce5f61fb1a8b",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "SendRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dc43ac23-4277-4c95-b286-fbda48054286",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "SendDown",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
             ]
         }
     ],
-    "controlSchemes": []
+    "controlSchemes": [
+        {
+            "name": "PC",
+            "bindingGroup": "PC",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "Mobile",
+            "bindingGroup": "Mobile",
+            "devices": [
+                {
+                    "devicePath": "<Touchscreen>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
 }

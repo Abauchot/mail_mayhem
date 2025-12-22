@@ -91,23 +91,32 @@ namespace Inputs
     ""name"": ""MailMayhem_Inputs"",
     ""maps"": [
         {
-            ""name"": ""UI"",
-            ""id"": ""8b860e4e-b537-4a1b-bd8a-f08e18e13601"",
+            ""name"": ""Gameplay_Mobile"",
+            ""id"": ""a1ed2a61-2e07-415e-a492-b1bb8f182a03"",
             ""actions"": [
                 {
                     ""name"": ""Point"",
-                    ""type"": ""Value"",
-                    ""id"": ""9b10dd4b-3591-4cc0-a9da-5c5fc9444889"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""9216f511-52ce-43ed-b747-465f98244672"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Click"",
+                    ""name"": ""Press"",
+                    ""type"": ""Button"",
+                    ""id"": ""fecadb8b-45c2-4b49-bdec-d7dcbfbec383"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Delta"",
                     ""type"": ""PassThrough"",
-                    ""id"": ""e976fe1f-c810-464d-a27c-5baa8adf5599"",
-                    ""expectedControlType"": ""Button"",
+                    ""id"": ""53bc77cc-4277-4be2-8b37-265874a594af"",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -116,62 +125,170 @@ namespace Inputs
             ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""9861352a-1e2e-4c7b-8ecd-0c94f63df383"",
-                    ""path"": ""<Mouse>/position"",
+                    ""id"": ""ab8c26c8-3ee0-4fee-a2f1-d8dc30fa448f"",
+                    ""path"": ""<Pointer>/position"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Mobile"",
                     ""action"": ""Point"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d1e64248-b36a-4d89-82ac-5ad122158990"",
-                    ""path"": ""<Touchscreen>/primaryTouch/position"",
+                    ""id"": ""159c87be-4bf8-4108-8535-d1d5d19ff90b"",
+                    ""path"": ""<Pointer>/press"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Point"",
+                    ""groups"": "";Mobile"",
+                    ""action"": ""Press"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""b3b1b987-fa52-464b-b821-611409327716"",
-                    ""path"": ""<Mouse>/leftButton"",
+                    ""id"": ""b27aee63-0400-4274-a6bb-4f5d557c96a9"",
+                    ""path"": ""<Pointer>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Click"",
+                    ""groups"": "";Mobile"",
+                    ""action"": ""Delta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""Gameplay_PC"",
+            ""id"": ""2cd56583-b1c3-4f20-abe3-b01948d8ff1e"",
+            ""actions"": [
+                {
+                    ""name"": ""SendLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""b595a89a-df87-4a2b-b816-8036d62cc534"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SendUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""d7d3c752-60c5-4c2e-8973-24fe2f36d99d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SendRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""e68c0c28-db1a-4b0f-902f-3d7dd0e842cb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SendDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""110c10cc-0867-4c5f-8c33-b3142223a411"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""a7ec4046-c891-41c8-a9ac-ef975f3fffef"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""SendLeft"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""f8e27622-ce79-407f-9dfc-a792df6accb4"",
-                    ""path"": ""<Touchscreen>/Press"",
+                    ""id"": ""e569c0b1-6bd3-46e9-aee1-d23a88566212"",
+                    ""path"": ""<Keyboard>/upArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Click"",
+                    ""groups"": "";PC"",
+                    ""action"": ""SendUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9d7071d4-e2fa-4ab3-aaa2-ce5f61fb1a8b"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""SendRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dc43ac23-4277-4c95-b286-fbda48054286"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""SendDown"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
             ]
         }
     ],
-    ""controlSchemes"": []
+    ""controlSchemes"": [
+        {
+            ""name"": ""PC"",
+            ""bindingGroup"": ""PC"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Keyboard>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""Mobile"",
+            ""bindingGroup"": ""Mobile"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Touchscreen>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
+        }
+    ]
 }");
-            // UI
-            m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
-            m_UI_Point = m_UI.FindAction("Point", throwIfNotFound: true);
-            m_UI_Click = m_UI.FindAction("Click", throwIfNotFound: true);
+            // Gameplay_Mobile
+            m_Gameplay_Mobile = asset.FindActionMap("Gameplay_Mobile", throwIfNotFound: true);
+            m_Gameplay_Mobile_Point = m_Gameplay_Mobile.FindAction("Point", throwIfNotFound: true);
+            m_Gameplay_Mobile_Press = m_Gameplay_Mobile.FindAction("Press", throwIfNotFound: true);
+            m_Gameplay_Mobile_Delta = m_Gameplay_Mobile.FindAction("Delta", throwIfNotFound: true);
+            // Gameplay_PC
+            m_Gameplay_PC = asset.FindActionMap("Gameplay_PC", throwIfNotFound: true);
+            m_Gameplay_PC_SendLeft = m_Gameplay_PC.FindAction("SendLeft", throwIfNotFound: true);
+            m_Gameplay_PC_SendUp = m_Gameplay_PC.FindAction("SendUp", throwIfNotFound: true);
+            m_Gameplay_PC_SendRight = m_Gameplay_PC.FindAction("SendRight", throwIfNotFound: true);
+            m_Gameplay_PC_SendDown = m_Gameplay_PC.FindAction("SendDown", throwIfNotFound: true);
         }
 
         ~@MailMayhem_Inputs()
         {
-            UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, MailMayhem_Inputs.UI.Disable() has not been called.");
+            UnityEngine.Debug.Assert(!m_Gameplay_Mobile.enabled, "This will cause a leak and performance issues, MailMayhem_Inputs.Gameplay_Mobile.Disable() has not been called.");
+            UnityEngine.Debug.Assert(!m_Gameplay_PC.enabled, "This will cause a leak and performance issues, MailMayhem_Inputs.Gameplay_PC.Disable() has not been called.");
         }
 
         /// <summary>
@@ -244,34 +361,39 @@ namespace Inputs
             return asset.FindBinding(bindingMask, out action);
         }
 
-        // UI
-        private readonly InputActionMap m_UI;
-        private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
-        private readonly InputAction m_UI_Point;
-        private readonly InputAction m_UI_Click;
+        // Gameplay_Mobile
+        private readonly InputActionMap m_Gameplay_Mobile;
+        private List<IGameplay_MobileActions> m_Gameplay_MobileActionsCallbackInterfaces = new List<IGameplay_MobileActions>();
+        private readonly InputAction m_Gameplay_Mobile_Point;
+        private readonly InputAction m_Gameplay_Mobile_Press;
+        private readonly InputAction m_Gameplay_Mobile_Delta;
         /// <summary>
-        /// Provides access to input actions defined in input action map "UI".
+        /// Provides access to input actions defined in input action map "Gameplay_Mobile".
         /// </summary>
-        public struct UIActions
+        public struct Gameplay_MobileActions
         {
             private @MailMayhem_Inputs m_Wrapper;
 
             /// <summary>
             /// Construct a new instance of the input action map wrapper class.
             /// </summary>
-            public UIActions(@MailMayhem_Inputs wrapper) { m_Wrapper = wrapper; }
+            public Gameplay_MobileActions(@MailMayhem_Inputs wrapper) { m_Wrapper = wrapper; }
             /// <summary>
-            /// Provides access to the underlying input action "UI/Point".
+            /// Provides access to the underlying input action "Gameplay_Mobile/Point".
             /// </summary>
-            public InputAction @Point => m_Wrapper.m_UI_Point;
+            public InputAction @Point => m_Wrapper.m_Gameplay_Mobile_Point;
             /// <summary>
-            /// Provides access to the underlying input action "UI/Click".
+            /// Provides access to the underlying input action "Gameplay_Mobile/Press".
             /// </summary>
-            public InputAction @Click => m_Wrapper.m_UI_Click;
+            public InputAction @Press => m_Wrapper.m_Gameplay_Mobile_Press;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay_Mobile/Delta".
+            /// </summary>
+            public InputAction @Delta => m_Wrapper.m_Gameplay_Mobile_Delta;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
-            public InputActionMap Get() { return m_Wrapper.m_UI; }
+            public InputActionMap Get() { return m_Wrapper.m_Gameplay_Mobile; }
             /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
             public void Enable() { Get().Enable(); }
             /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
@@ -279,9 +401,9 @@ namespace Inputs
             /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
             public bool enabled => Get().enabled;
             /// <summary>
-            /// Implicitly converts an <see ref="UIActions" /> to an <see ref="InputActionMap" /> instance.
+            /// Implicitly converts an <see ref="Gameplay_MobileActions" /> to an <see ref="InputActionMap" /> instance.
             /// </summary>
-            public static implicit operator InputActionMap(UIActions set) { return set.Get(); }
+            public static implicit operator InputActionMap(Gameplay_MobileActions set) { return set.Get(); }
             /// <summary>
             /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
             /// </summary>
@@ -289,17 +411,20 @@ namespace Inputs
             /// <remarks>
             /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
             /// </remarks>
-            /// <seealso cref="UIActions" />
-            public void AddCallbacks(IUIActions instance)
+            /// <seealso cref="Gameplay_MobileActions" />
+            public void AddCallbacks(IGameplay_MobileActions instance)
             {
-                if (instance == null || m_Wrapper.m_UIActionsCallbackInterfaces.Contains(instance)) return;
-                m_Wrapper.m_UIActionsCallbackInterfaces.Add(instance);
+                if (instance == null || m_Wrapper.m_Gameplay_MobileActionsCallbackInterfaces.Contains(instance)) return;
+                m_Wrapper.m_Gameplay_MobileActionsCallbackInterfaces.Add(instance);
                 @Point.started += instance.OnPoint;
                 @Point.performed += instance.OnPoint;
                 @Point.canceled += instance.OnPoint;
-                @Click.started += instance.OnClick;
-                @Click.performed += instance.OnClick;
-                @Click.canceled += instance.OnClick;
+                @Press.started += instance.OnPress;
+                @Press.performed += instance.OnPress;
+                @Press.canceled += instance.OnPress;
+                @Delta.started += instance.OnDelta;
+                @Delta.performed += instance.OnDelta;
+                @Delta.canceled += instance.OnDelta;
             }
 
             /// <summary>
@@ -308,24 +433,27 @@ namespace Inputs
             /// <remarks>
             /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
             /// </remarks>
-            /// <seealso cref="UIActions" />
-            private void UnregisterCallbacks(IUIActions instance)
+            /// <seealso cref="Gameplay_MobileActions" />
+            private void UnregisterCallbacks(IGameplay_MobileActions instance)
             {
                 @Point.started -= instance.OnPoint;
                 @Point.performed -= instance.OnPoint;
                 @Point.canceled -= instance.OnPoint;
-                @Click.started -= instance.OnClick;
-                @Click.performed -= instance.OnClick;
-                @Click.canceled -= instance.OnClick;
+                @Press.started -= instance.OnPress;
+                @Press.performed -= instance.OnPress;
+                @Press.canceled -= instance.OnPress;
+                @Delta.started -= instance.OnDelta;
+                @Delta.performed -= instance.OnDelta;
+                @Delta.canceled -= instance.OnDelta;
             }
 
             /// <summary>
-            /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="UIActions.UnregisterCallbacks(IUIActions)" />.
+            /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="Gameplay_MobileActions.UnregisterCallbacks(IGameplay_MobileActions)" />.
             /// </summary>
-            /// <seealso cref="UIActions.UnregisterCallbacks(IUIActions)" />
-            public void RemoveCallbacks(IUIActions instance)
+            /// <seealso cref="Gameplay_MobileActions.UnregisterCallbacks(IGameplay_MobileActions)" />
+            public void RemoveCallbacks(IGameplay_MobileActions instance)
             {
-                if (m_Wrapper.m_UIActionsCallbackInterfaces.Remove(instance))
+                if (m_Wrapper.m_Gameplay_MobileActionsCallbackInterfaces.Remove(instance))
                     UnregisterCallbacks(instance);
             }
 
@@ -335,27 +463,182 @@ namespace Inputs
             /// <remarks>
             /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
             /// </remarks>
-            /// <seealso cref="UIActions.AddCallbacks(IUIActions)" />
-            /// <seealso cref="UIActions.RemoveCallbacks(IUIActions)" />
-            /// <seealso cref="UIActions.UnregisterCallbacks(IUIActions)" />
-            public void SetCallbacks(IUIActions instance)
+            /// <seealso cref="Gameplay_MobileActions.AddCallbacks(IGameplay_MobileActions)" />
+            /// <seealso cref="Gameplay_MobileActions.RemoveCallbacks(IGameplay_MobileActions)" />
+            /// <seealso cref="Gameplay_MobileActions.UnregisterCallbacks(IGameplay_MobileActions)" />
+            public void SetCallbacks(IGameplay_MobileActions instance)
             {
-                foreach (var item in m_Wrapper.m_UIActionsCallbackInterfaces)
+                foreach (var item in m_Wrapper.m_Gameplay_MobileActionsCallbackInterfaces)
                     UnregisterCallbacks(item);
-                m_Wrapper.m_UIActionsCallbackInterfaces.Clear();
+                m_Wrapper.m_Gameplay_MobileActionsCallbackInterfaces.Clear();
                 AddCallbacks(instance);
             }
         }
         /// <summary>
-        /// Provides a new <see cref="UIActions" /> instance referencing this action map.
+        /// Provides a new <see cref="Gameplay_MobileActions" /> instance referencing this action map.
         /// </summary>
-        public UIActions @UI => new UIActions(this);
+        public Gameplay_MobileActions @Gameplay_Mobile => new Gameplay_MobileActions(this);
+
+        // Gameplay_PC
+        private readonly InputActionMap m_Gameplay_PC;
+        private List<IGameplay_PCActions> m_Gameplay_PCActionsCallbackInterfaces = new List<IGameplay_PCActions>();
+        private readonly InputAction m_Gameplay_PC_SendLeft;
+        private readonly InputAction m_Gameplay_PC_SendUp;
+        private readonly InputAction m_Gameplay_PC_SendRight;
+        private readonly InputAction m_Gameplay_PC_SendDown;
         /// <summary>
-        /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
+        /// Provides access to input actions defined in input action map "Gameplay_PC".
         /// </summary>
-        /// <seealso cref="UIActions.AddCallbacks(IUIActions)" />
-        /// <seealso cref="UIActions.RemoveCallbacks(IUIActions)" />
-        public interface IUIActions
+        public struct Gameplay_PCActions
+        {
+            private @MailMayhem_Inputs m_Wrapper;
+
+            /// <summary>
+            /// Construct a new instance of the input action map wrapper class.
+            /// </summary>
+            public Gameplay_PCActions(@MailMayhem_Inputs wrapper) { m_Wrapper = wrapper; }
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay_PC/SendLeft".
+            /// </summary>
+            public InputAction @SendLeft => m_Wrapper.m_Gameplay_PC_SendLeft;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay_PC/SendUp".
+            /// </summary>
+            public InputAction @SendUp => m_Wrapper.m_Gameplay_PC_SendUp;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay_PC/SendRight".
+            /// </summary>
+            public InputAction @SendRight => m_Wrapper.m_Gameplay_PC_SendRight;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay_PC/SendDown".
+            /// </summary>
+            public InputAction @SendDown => m_Wrapper.m_Gameplay_PC_SendDown;
+            /// <summary>
+            /// Provides access to the underlying input action map instance.
+            /// </summary>
+            public InputActionMap Get() { return m_Wrapper.m_Gameplay_PC; }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+            public void Enable() { Get().Enable(); }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+            public void Disable() { Get().Disable(); }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+            public bool enabled => Get().enabled;
+            /// <summary>
+            /// Implicitly converts an <see ref="Gameplay_PCActions" /> to an <see ref="InputActionMap" /> instance.
+            /// </summary>
+            public static implicit operator InputActionMap(Gameplay_PCActions set) { return set.Get(); }
+            /// <summary>
+            /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+            /// </summary>
+            /// <param name="instance">Callback instance.</param>
+            /// <remarks>
+            /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+            /// </remarks>
+            /// <seealso cref="Gameplay_PCActions" />
+            public void AddCallbacks(IGameplay_PCActions instance)
+            {
+                if (instance == null || m_Wrapper.m_Gameplay_PCActionsCallbackInterfaces.Contains(instance)) return;
+                m_Wrapper.m_Gameplay_PCActionsCallbackInterfaces.Add(instance);
+                @SendLeft.started += instance.OnSendLeft;
+                @SendLeft.performed += instance.OnSendLeft;
+                @SendLeft.canceled += instance.OnSendLeft;
+                @SendUp.started += instance.OnSendUp;
+                @SendUp.performed += instance.OnSendUp;
+                @SendUp.canceled += instance.OnSendUp;
+                @SendRight.started += instance.OnSendRight;
+                @SendRight.performed += instance.OnSendRight;
+                @SendRight.canceled += instance.OnSendRight;
+                @SendDown.started += instance.OnSendDown;
+                @SendDown.performed += instance.OnSendDown;
+                @SendDown.canceled += instance.OnSendDown;
+            }
+
+            /// <summary>
+            /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+            /// </summary>
+            /// <remarks>
+            /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+            /// </remarks>
+            /// <seealso cref="Gameplay_PCActions" />
+            private void UnregisterCallbacks(IGameplay_PCActions instance)
+            {
+                @SendLeft.started -= instance.OnSendLeft;
+                @SendLeft.performed -= instance.OnSendLeft;
+                @SendLeft.canceled -= instance.OnSendLeft;
+                @SendUp.started -= instance.OnSendUp;
+                @SendUp.performed -= instance.OnSendUp;
+                @SendUp.canceled -= instance.OnSendUp;
+                @SendRight.started -= instance.OnSendRight;
+                @SendRight.performed -= instance.OnSendRight;
+                @SendRight.canceled -= instance.OnSendRight;
+                @SendDown.started -= instance.OnSendDown;
+                @SendDown.performed -= instance.OnSendDown;
+                @SendDown.canceled -= instance.OnSendDown;
+            }
+
+            /// <summary>
+            /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="Gameplay_PCActions.UnregisterCallbacks(IGameplay_PCActions)" />.
+            /// </summary>
+            /// <seealso cref="Gameplay_PCActions.UnregisterCallbacks(IGameplay_PCActions)" />
+            public void RemoveCallbacks(IGameplay_PCActions instance)
+            {
+                if (m_Wrapper.m_Gameplay_PCActionsCallbackInterfaces.Remove(instance))
+                    UnregisterCallbacks(instance);
+            }
+
+            /// <summary>
+            /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+            /// </summary>
+            /// <remarks>
+            /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+            /// </remarks>
+            /// <seealso cref="Gameplay_PCActions.AddCallbacks(IGameplay_PCActions)" />
+            /// <seealso cref="Gameplay_PCActions.RemoveCallbacks(IGameplay_PCActions)" />
+            /// <seealso cref="Gameplay_PCActions.UnregisterCallbacks(IGameplay_PCActions)" />
+            public void SetCallbacks(IGameplay_PCActions instance)
+            {
+                foreach (var item in m_Wrapper.m_Gameplay_PCActionsCallbackInterfaces)
+                    UnregisterCallbacks(item);
+                m_Wrapper.m_Gameplay_PCActionsCallbackInterfaces.Clear();
+                AddCallbacks(instance);
+            }
+        }
+        /// <summary>
+        /// Provides a new <see cref="Gameplay_PCActions" /> instance referencing this action map.
+        /// </summary>
+        public Gameplay_PCActions @Gameplay_PC => new Gameplay_PCActions(this);
+        private int m_PCSchemeIndex = -1;
+        /// <summary>
+        /// Provides access to the input control scheme.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
+        public InputControlScheme PCScheme
+        {
+            get
+            {
+                if (m_PCSchemeIndex == -1) m_PCSchemeIndex = asset.FindControlSchemeIndex("PC");
+                return asset.controlSchemes[m_PCSchemeIndex];
+            }
+        }
+        private int m_MobileSchemeIndex = -1;
+        /// <summary>
+        /// Provides access to the input control scheme.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
+        public InputControlScheme MobileScheme
+        {
+            get
+            {
+                if (m_MobileSchemeIndex == -1) m_MobileSchemeIndex = asset.FindControlSchemeIndex("Mobile");
+                return asset.controlSchemes[m_MobileSchemeIndex];
+            }
+        }
+        /// <summary>
+        /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gameplay_Mobile" which allows adding and removing callbacks.
+        /// </summary>
+        /// <seealso cref="Gameplay_MobileActions.AddCallbacks(IGameplay_MobileActions)" />
+        /// <seealso cref="Gameplay_MobileActions.RemoveCallbacks(IGameplay_MobileActions)" />
+        public interface IGameplay_MobileActions
         {
             /// <summary>
             /// Method invoked when associated input action "Point" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
@@ -365,12 +648,55 @@ namespace Inputs
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnPoint(InputAction.CallbackContext context);
             /// <summary>
-            /// Method invoked when associated input action "Click" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// Method invoked when associated input action "Press" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>
             /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-            void OnClick(InputAction.CallbackContext context);
+            void OnPress(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Delta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnDelta(InputAction.CallbackContext context);
+        }
+        /// <summary>
+        /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gameplay_PC" which allows adding and removing callbacks.
+        /// </summary>
+        /// <seealso cref="Gameplay_PCActions.AddCallbacks(IGameplay_PCActions)" />
+        /// <seealso cref="Gameplay_PCActions.RemoveCallbacks(IGameplay_PCActions)" />
+        public interface IGameplay_PCActions
+        {
+            /// <summary>
+            /// Method invoked when associated input action "SendLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSendLeft(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "SendUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSendUp(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "SendRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSendRight(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "SendDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSendDown(InputAction.CallbackContext context);
         }
     }
 }

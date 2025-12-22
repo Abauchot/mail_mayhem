@@ -10,6 +10,8 @@ namespace Letters
         [Header("References")]
         [SerializeField] public Letter letterPrefab;
         [SerializeField] public RectTransform spawnParent;
+        [SerializeField] private Boxes.BoxesRegistry boxesRegistry;
+
 
         [Header("Spawn Settings")]
         [SerializeField] public float spawnInterval = 1.5f;
@@ -17,6 +19,7 @@ namespace Letters
 
         private float _timer;
         private Letter _currentLetter;
+        
        
         private void Start()
         {
@@ -61,7 +64,12 @@ namespace Letters
             
             int symbolCount = System.Enum.GetNames(typeof(SymbolType)).Length;
             SymbolType randomSymbol = (SymbolType)Random.Range(0, symbolCount);
-            _currentLetter.Setup(randomSymbol, this);
+            if (!boxesRegistry)
+            {
+                boxesRegistry = FindFirstObjectByType<Boxes.BoxesRegistry>();
+            }
+
+            _currentLetter.Setup(randomSymbol, this, boxesRegistry);
         }
         
         public void OnLetterDestroyed(Letter letter)

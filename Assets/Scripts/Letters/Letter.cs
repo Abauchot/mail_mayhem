@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,44 +13,69 @@ namespace Letters
         Circle,
         Diamond
     }
-    
-    public class Letter : MonoBehaviour, IPointerDownHandler,IBeginDragHandler,IDragHandler,IEndDragHandler
+
+    public class Letter : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        [Header("Symbol")] 
+        [Header("Symbol")]
         [SerializeField] private SymbolType symbolType;
-        [SerializeField] public SymbolType Symbol => symbolType;
-        
+        public SymbolType Symbol => symbolType;
+
         [Header("Sprites")]
         [SerializeField] public Sprite squareSprite;
         [SerializeField] public Sprite triangleSprite;
         [SerializeField] public Sprite circleSprite;
         [SerializeField] public Sprite diamondSprite;
         [SerializeField] public Sprite neutralSprite;
-        
+
         [Header("Components")]
         [SerializeField] public Image envelopeImage;
         [SerializeField] public CanvasGroup canvasGroup;
-        
+
         [HideInInspector] public LetterSpawner spawner;
-        
+
+        [Header("Throw (tuning)")]
+        [SerializeField] private float minThrowSpeed = 900f;     // UI units/sec
+        [SerializeField] private float maxThrowSpeed = 3000f;    // clamp
+        [SerializeField] private float friction = 6.5f;          // damping
+        [SerializeField] private float maxThrowDuration = 1.0f;  // safety
+        [SerializeField] private float returnDuration = 0.15f;   // return to spawn
+
+        [Header("Throw (sampling)")]
+        [SerializeField] private int maxSamples = 6;
+
         private RectTransform _rectTransform;
-        private Vector2 _startPosition;
         private Canvas _parentCanvas;
+
+        private Vector2 _spawnAnchoredPos;
+        private Coroutine _throwRoutine;
         
+        private Boxes.BoxesRegistry _boxesRegistry;
+
+        private readonly List<Sample> _samples = new();
+
+        private struct Sample
+        {
+            public Vector2 screenPos;
+            public float time;
+        }
+
         private void Awake()
         {
             _rectTransform = GetComponent<RectTransform>();
             _parentCanvas = GetComponentInParent<Canvas>();
+
             if (envelopeImage == null)
-            {
                 envelopeImage = GetComponent<Image>();
-            }
+
+            if (canvasGroup == null)
+                canvasGroup = GetComponent<CanvasGroup>();
         }
 
-        public void Setup(SymbolType type, LetterSpawner ownerSpawner)
+        public void Setup(SymbolType type, LetterSpawner ownerSpawner, Boxes.BoxesRegistry boxesRegistry)
         {
             symbolType = type;
             spawner = ownerSpawner;
+            _boxesRegistry = boxesRegistry;
 
             envelopeImage.sprite = type switch
             {
@@ -58,37 +85,198 @@ namespace Letters
                 SymbolType.Diamond => diamondSprite,
                 _ => neutralSprite
             };
+
+            _spawnAnchoredPos = _rectTransform.anchoredPosition;
+
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.alpha = 1f;
         }
-        
+
+
         public void OnPointerDown(PointerEventData eventData)
         {
-            _startPosition = _rectTransform.anchoredPosition;
+            _spawnAnchoredPos = _rectTransform.anchoredPosition;
+            _rectTransform.SetAsLastSibling();
         }
-        
+
         public void OnBeginDrag(PointerEventData eventData)
         {
+            CancelThrowIfAny();
+
+            _samples.Clear();
+            AddSample(eventData);
+
             canvasGroup.blocksRaycasts = false;
             canvasGroup.alpha = 0.8f;
         }
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            canvasGroup.blocksRaycasts = true;
-            canvasGroup.alpha = 1f;
-            _rectTransform.anchoredPosition = _startPosition;
-        }
 
-        
         public void OnDrag(PointerEventData eventData)
         {
             _rectTransform.anchoredPosition += eventData.delta / _parentCanvas.scaleFactor;
+
+            AddSample(eventData);
         }
-        
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            AddSample(eventData);
+
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+
+            Vector2 velocity = ComputeThrowVelocityUI();
+            float speed = velocity.magnitude;
+
+            if (speed < minThrowSpeed)
+            {
+                StartReturnToSpawn();
+                return;
+            }
+
+            if (speed > maxThrowSpeed)
+                velocity = velocity.normalized * maxThrowSpeed;
+
+            _throwRoutine = StartCoroutine(ThrowAndDetect(velocity));
+        }
+
+        private void StartReturnToSpawn()
+        {
+            if (_throwRoutine != null) StopCoroutine(_throwRoutine);
+            _throwRoutine = StartCoroutine(ReturnToSpawn());
+        }
+
+        private void CancelThrowIfAny()
+        {
+            if (_throwRoutine != null)
+            {
+                StopCoroutine(_throwRoutine);
+                _throwRoutine = null;
+            }
+        }
+
+        private void AddSample(PointerEventData e)
+        {
+            _samples.Add(new Sample { screenPos = e.position, time = Time.unscaledTime });
+            if (_samples.Count > maxSamples)
+                _samples.RemoveAt(0);
+        }
+
+        private Vector2 ComputeThrowVelocityUI()
+        {
+            if (_samples.Count < 2) return Vector2.zero;
+
+            Sample first = _samples[0];
+            Sample last = _samples[^1];
+
+            float dt = last.time - first.time;
+            if (dt <= 0.0001f) return Vector2.zero;
+
+            RectTransform parent = _rectTransform.parent as RectTransform;
+            if (parent == null) return Vector2.zero;
+            
+            Camera cam = null;
+            if (_parentCanvas != null && _parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                cam = _parentCanvas.worldCamera;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, first.screenPos, cam, out var firstLocal);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, last.screenPos, cam, out var lastLocal);
+
+            Vector2 delta = lastLocal - firstLocal; 
+            return delta / dt; 
+        }
+
+        private IEnumerator ThrowAndDetect(Vector2 velocity)
+        {
+            canvasGroup.blocksRaycasts = false;
+
+            float t = 0f;
+
+            while (t < maxThrowDuration)
+            {
+                float dt = Time.unscaledDeltaTime;
+                t += dt;
+
+                _rectTransform.anchoredPosition += velocity * dt;
+                
+                float damp = Mathf.Exp(-friction * dt);
+                velocity *= damp;
+                
+                var hitBox = FindHitBox();
+                if (hitBox != null)
+                {
+                    canvasGroup.blocksRaycasts = true;
+                    hitBox.ResolveHit(this);
+                    yield break;
+                }
+                
+                if (velocity.magnitude < 120f)
+                    break;
+
+                yield return null;
+            }
+
+            canvasGroup.blocksRaycasts = true;
+            _throwRoutine = StartCoroutine(ReturnToSpawn());
+        }
+
+        private Boxes.ServiceBox FindHitBox()
+        {
+            if (!_boxesRegistry) return null;
+
+            Rect letterRect = GetWorldRect(_rectTransform);
+
+            foreach (var box in _boxesRegistry.Boxes)
+            {
+                if (!box) continue;
+
+                Rect boxRect = GetWorldRect(box.RectTransform);
+                if (letterRect.Overlaps(boxRect, true))
+                    return box;
+            }
+
+            return null;
+        }
+
+
+        private static Rect GetWorldRect(RectTransform rt)
+        {
+            Vector3[] corners = new Vector3[4];
+            rt.GetWorldCorners(corners);
+            Vector2 min = corners[0];
+            Vector2 max = corners[2];
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
+        private IEnumerator ReturnToSpawn()
+        {
+            Vector2 start = _rectTransform.anchoredPosition;
+            float elapsed = 0f;
+
+            while (elapsed < returnDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float a = Mathf.Clamp01(elapsed / returnDuration);
+                a = 1f - Mathf.Pow(1f - a, 3f); // ease-out
+
+                _rectTransform.anchoredPosition = Vector2.LerpUnclamped(start, _spawnAnchoredPos, a);
+                yield return null;
+            }
+
+            _rectTransform.anchoredPosition = _spawnAnchoredPos;
+            _throwRoutine = null;
+        }
+
         public void DestroyLetter()
         {
-            if (spawner != null)
+            if (_throwRoutine != null)
             {
-                spawner.OnLetterDestroyed(this);
+                StopCoroutine(_throwRoutine);
+                _throwRoutine = null;
             }
+
+            if (spawner != null)
+                spawner.OnLetterDestroyed(this);
+
             Destroy(gameObject);
         }
     }
