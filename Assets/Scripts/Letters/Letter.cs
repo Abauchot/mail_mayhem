@@ -40,22 +40,24 @@ namespace Letters
         [SerializeField] private float maxThrowDuration = 1.0f;  // safety
         [SerializeField] private float returnDuration = 0.15f;   // return to spawn
         
+        [Header("Throw (sampling)")]
+        [SerializeField] private int maxSamples = 6;             // keep last N samples
+
         private RectTransform _rectTransform;
         private Canvas _parentCanvas;
 
         private Vector2 _spawnAnchoredPos;
         private Coroutine _throwRoutine;
-        
+
         private Boxes.BoxesRegistry _boxesRegistry;
 
         private readonly List<Sample> _samples = new();
-        
+
         private bool _pointerInputEnabled = true;
 
         private RectTransform _parentRect;
         private Vector2 _lastLocalPointer;
         private bool _isGrabbing;
-
 
         private struct Sample
         {
@@ -96,7 +98,12 @@ namespace Letters
             canvasGroup.blocksRaycasts = true;
             canvasGroup.alpha = 1f;
         }
-        
+
+        /// <summary>
+        /// Enable/disable pointer (EventSystem) input on this letter.
+        /// For your setup: set FALSE on Mobile if you use MobileLetterInput router,
+        /// set TRUE on PC if you want UI drag handlers.
+        /// </summary>
         public void SetPointerInputEnabled(bool enabled)
         {
             _pointerInputEnabled = enabled;
@@ -114,7 +121,8 @@ namespace Letters
             CancelThrowIfAny();
 
             _samples.Clear();
-           
+            
+            AddSample(screenPos);
 
             canvasGroup.blocksRaycasts = false;
             canvasGroup.alpha = 0.8f;
@@ -127,25 +135,30 @@ namespace Letters
         public void Move(Vector2 screenPos)
         {
             if (!_isGrabbing) return;
+            
+            AddSample(screenPos);
 
             var local = ScreenToLocalInParent(screenPos);
             var delta = local - _lastLocalPointer;
             _lastLocalPointer = local;
 
             _rectTransform.anchoredPosition += delta;
-            
         }
 
         public void Release(Vector2 screenPos)
         {
             if (!_isGrabbing) return;
             _isGrabbing = false;
-            
+
             canvasGroup.alpha = 1f;
             canvasGroup.blocksRaycasts = true;
+            
+            AddSample(screenPos);
 
             Vector2 velocity = ComputeThrowVelocityUI();
             float speed = velocity.magnitude;
+
+             Debug.Log($"Throw speed: {speed}");
 
             if (speed < minThrowSpeed)
             {
@@ -158,7 +171,21 @@ namespace Letters
 
             _throwRoutine = StartCoroutine(ThrowAndDetect(velocity));
         }
-        
+
+        private void AddSample(Vector2 screenPos)
+        {
+            _samples.Add(new Sample
+            {
+                screenPos = screenPos,
+                time = Time.unscaledTime
+            });
+
+            if (maxSamples < 2) maxSamples = 2;
+            
+            while (_samples.Count > maxSamples)
+                _samples.RemoveAt(0);
+        }
+
         private Vector2 ScreenToLocalInParent(Vector2 screenPos)
         {
             if (_parentRect == null) return Vector2.zero;
@@ -170,7 +197,8 @@ namespace Letters
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_parentRect, screenPos, cam, out var local);
             return local;
         }
-        
+
+        // --- EventSystem handlers (only if pointer input enabled) ---
 
         public void OnPointerDown(PointerEventData eventData)
         {
@@ -196,7 +224,6 @@ namespace Letters
             if (!_pointerInputEnabled) return;
             Release(eventData.position);
         }
-
 
         private void StartReturnToSpawn()
         {
@@ -225,7 +252,7 @@ namespace Letters
 
             RectTransform parent = _rectTransform.parent as RectTransform;
             if (parent == null) return Vector2.zero;
-            
+
             Camera cam = null;
             if (_parentCanvas != null && _parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
                 cam = _parentCanvas.worldCamera;
@@ -233,8 +260,8 @@ namespace Letters
             RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, first.screenPos, cam, out var firstLocal);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, last.screenPos, cam, out var lastLocal);
 
-            Vector2 delta = lastLocal - firstLocal; 
-            return delta / dt; 
+            Vector2 delta = lastLocal - firstLocal;
+            return delta / dt;
         }
 
         private IEnumerator ThrowAndDetect(Vector2 velocity)
@@ -249,10 +276,10 @@ namespace Letters
                 t += dt;
 
                 _rectTransform.anchoredPosition += velocity * dt;
-                
+
                 float damp = Mathf.Exp(-friction * dt);
                 velocity *= damp;
-                
+
                 var hitBox = FindHitBox();
                 if (hitBox != null)
                 {
@@ -260,7 +287,7 @@ namespace Letters
                     hitBox.ResolveHit(this);
                     yield break;
                 }
-                
+
                 if (velocity.magnitude < 120f)
                     break;
 
@@ -330,7 +357,7 @@ namespace Letters
 
             Destroy(gameObject);
         }
-        
+
         public void SendToBox(Boxes.ServiceBox box, float duration = 0.15f)
         {
             if (box == null) return;
@@ -361,6 +388,5 @@ namespace Letters
 
             box.ResolveHit(this);
         }
-
     }
 }

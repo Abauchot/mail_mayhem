@@ -13,65 +13,74 @@ namespace Inputs
         [SerializeField] private MobileLetterInput mobileInput;
 
         private Letter _currentLetter;
-        
-        
+        private bool _useMobile;
+
         private void Awake()
         {
-            if (boxesRegistry == null)
-                boxesRegistry = FindFirstObjectByType<BoxesRegistry>();
-
-            if (pcInput == null)
-                pcInput = GetComponent<PcLetterInput>() ?? FindFirstObjectByType<PcLetterInput>();
-
-            if (mobileInput == null)
-                mobileInput = GetComponent<MobileLetterInput>() ?? FindFirstObjectByType<MobileLetterInput>();
-            
-            if (pcInput == null) pcInput = FindFirstObjectByType<PcLetterInput>();
-            if (mobileInput == null) mobileInput = FindFirstObjectByType<MobileLetterInput>();
-            if (boxesRegistry == null) boxesRegistry = FindFirstObjectByType<BoxesRegistry>();
+            if (!boxesRegistry) boxesRegistry = FindFirstObjectByType<BoxesRegistry>();
+            if (!pcInput) pcInput = GetComponent<PcLetterInput>() ?? FindFirstObjectByType<PcLetterInput>();
+            if (!mobileInput) mobileInput = GetComponent<MobileLetterInput>() ?? FindFirstObjectByType<MobileLetterInput>();
         }
 
         private void OnEnable()
         {
-#if UNITY_ANDROID || UNITY_IOS
-    if (mobileInput == null)
-    {
-        Debug.LogError("LetterInputRouter: MobileLetterInput not found in scene.");
-        return;
-    }
-
-    mobileInput.OnGrab += HandleGrab;
-    mobileInput.OnMove += HandleMove;
-    mobileInput.OnRelease += HandleRelease;
-#else
-            if (pcInput == null)
-            {
-                Debug.LogError("LetterInputRouter: PcLetterInput not found in scene.");
-                return;
-            }
-
-            pcInput.OnSend += HandleSendToBox;
-#endif
+            ApplyBindings();
         }
-
 
         private void OnDisable()
         {
-#if UNITY_ANDROID || UNITY_IOS
-    if (mobileInput == null) return;
-    mobileInput.OnGrab -= HandleGrab;
-    mobileInput.OnMove -= HandleMove;
-    mobileInput.OnRelease -= HandleRelease;
-#else
-            if (pcInput == null) return;
-            pcInput.OnSend -= HandleSendToBox;
-#endif
+            UnbindAll();
         }
 
+        public void SetCurrentLetter(Letter letter) => _currentLetter = letter;
 
-        public void SetCurrentLetter(Letter letter)
+        public void UseMobile(bool useMobile)
         {
-            _currentLetter = letter;
+            _useMobile = useMobile;
+            ApplyBindings();
+        }
+
+        private void ApplyBindings()
+        {
+            if (!isActiveAndEnabled) return;
+
+            UnbindAll();
+
+            if (_useMobile)
+            {
+                if (pcInput) pcInput.enabled = false;
+                
+                if (!mobileInput) return;
+                mobileInput.enabled = true;
+
+                mobileInput.OnGrab += HandleGrab;
+                mobileInput.OnMove += HandleMove;
+                mobileInput.OnRelease += HandleRelease;
+            }
+            else
+            {
+                if (mobileInput) mobileInput.enabled = false;
+                
+                if (!pcInput) return;
+                pcInput.enabled = true;
+
+                pcInput.OnSend += HandleSendToBox;
+            }
+        }
+
+        private void UnbindAll()
+        {
+            if (mobileInput)
+            {
+                mobileInput.OnGrab -= HandleGrab;
+                mobileInput.OnMove -= HandleMove;
+                mobileInput.OnRelease -= HandleRelease;
+            }
+
+            if (pcInput)
+            {
+                pcInput.OnSend -= HandleSendToBox;
+            }
         }
 
         private void HandleGrab(Vector2 screenPos)
@@ -94,7 +103,7 @@ namespace Inputs
 
         private void HandleSendToBox(SymbolType type)
         {
-            if (_currentLetter == null) return;
+            if (_currentLetter == null || !boxesRegistry) return;
 
             var box = boxesRegistry.GetBox(type);
             if (box == null) return;
