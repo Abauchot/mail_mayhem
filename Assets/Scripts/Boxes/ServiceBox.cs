@@ -46,36 +46,5 @@ namespace Boxes
             letter.DestroyLetter();
 
         }
-
-        // public void OnDrop(PointerEventData eventData)
-        // {
-        //     GameObject go = eventData.pointerDrag;
-        //     if (go == null)
-        //     {
-        //         return;
-        //     }
-        //     
-        //     Letter letter = go.GetComponent<Letter>();
-        //     if (letter == null)
-        //     {
-        //         return;
-        //     }
-        //     
-        //
-        //     
-        //     bool correct = letter.Symbol == acceptedSymbolType;
-        //     if (correct)
-        //     {
-        //         Debug.Log("ServiceBox: Correct letter delivered!");
-        //        //TODO: GameManager.Instance.OnLetterResolved(true);
-        //         
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("ServiceBox: Incorrect letter delivered.");
-        //         //TODO: GameManager.Instance.OnLetterResolved(false);
-        //     }
-        //     letter.DestroyLetter();
-        // }
     }
 }

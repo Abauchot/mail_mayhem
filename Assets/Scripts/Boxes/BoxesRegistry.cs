@@ -12,7 +12,7 @@ namespace Boxes
 
         public IReadOnlyList<ServiceBox> Boxes => boxes;
 
-        private void Awake()
+        private void Start()
         {
             Rebuild();
         }

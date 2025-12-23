@@ -39,10 +39,7 @@ namespace Letters
         [SerializeField] private float friction = 6.5f;          // damping
         [SerializeField] private float maxThrowDuration = 1.0f;  // safety
         [SerializeField] private float returnDuration = 0.15f;   // return to spawn
-
-        [Header("Throw (sampling)")]
-        [SerializeField] private int maxSamples = 6;
-
+        
         private RectTransform _rectTransform;
         private Canvas _parentCanvas;
 
@@ -52,6 +49,13 @@ namespace Letters
         private Boxes.BoxesRegistry _boxesRegistry;
 
         private readonly List<Sample> _samples = new();
+        
+        private bool _pointerInputEnabled = true;
+
+        private RectTransform _parentRect;
+        private Vector2 _lastLocalPointer;
+        private bool _isGrabbing;
+
 
         private struct Sample
         {
@@ -63,6 +67,7 @@ namespace Letters
         {
             _rectTransform = GetComponent<RectTransform>();
             _parentCanvas = GetComponentInParent<Canvas>();
+            _parentRect = GetComponentInParent<RectTransform>();
 
             if (envelopeImage == null)
                 envelopeImage = GetComponent<Image>();
@@ -91,36 +96,51 @@ namespace Letters
             canvasGroup.blocksRaycasts = true;
             canvasGroup.alpha = 1f;
         }
+        
+        public void SetPointerInputEnabled(bool enabled)
+        {
+            _pointerInputEnabled = enabled;
 
+            // Sur PC, évite que la lettre capte le pointer
+            if (canvasGroup != null)
+                canvasGroup.blocksRaycasts = enabled;
+        }
 
-        public void OnPointerDown(PointerEventData eventData)
+        public void Grab(Vector2 screenPos)
         {
             _spawnAnchoredPos = _rectTransform.anchoredPosition;
             _rectTransform.SetAsLastSibling();
-        }
 
-        public void OnBeginDrag(PointerEventData eventData)
-        {
             CancelThrowIfAny();
 
             _samples.Clear();
-            AddSample(eventData);
+           
 
             canvasGroup.blocksRaycasts = false;
             canvasGroup.alpha = 0.8f;
+
+            _isGrabbing = true;
+
+            _lastLocalPointer = ScreenToLocalInParent(screenPos);
         }
 
-        public void OnDrag(PointerEventData eventData)
+        public void Move(Vector2 screenPos)
         {
-            _rectTransform.anchoredPosition += eventData.delta / _parentCanvas.scaleFactor;
+            if (!_isGrabbing) return;
 
-            AddSample(eventData);
+            var local = ScreenToLocalInParent(screenPos);
+            var delta = local - _lastLocalPointer;
+            _lastLocalPointer = local;
+
+            _rectTransform.anchoredPosition += delta;
+            
         }
 
-        public void OnEndDrag(PointerEventData eventData)
+        public void Release(Vector2 screenPos)
         {
-            AddSample(eventData);
-
+            if (!_isGrabbing) return;
+            _isGrabbing = false;
+            
             canvasGroup.alpha = 1f;
             canvasGroup.blocksRaycasts = true;
 
@@ -138,6 +158,45 @@ namespace Letters
 
             _throwRoutine = StartCoroutine(ThrowAndDetect(velocity));
         }
+        
+        private Vector2 ScreenToLocalInParent(Vector2 screenPos)
+        {
+            if (_parentRect == null) return Vector2.zero;
+
+            Camera cam = null;
+            if (_parentCanvas != null && _parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                cam = _parentCanvas.worldCamera;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_parentRect, screenPos, cam, out var local);
+            return local;
+        }
+        
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (!_pointerInputEnabled) return;
+            _spawnAnchoredPos = _rectTransform.anchoredPosition;
+            _rectTransform.SetAsLastSibling();
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (!_pointerInputEnabled) return;
+            Grab(eventData.position);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (!_pointerInputEnabled) return;
+            Move(eventData.position);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            if (!_pointerInputEnabled) return;
+            Release(eventData.position);
+        }
+
 
         private void StartReturnToSpawn()
         {
@@ -152,13 +211,6 @@ namespace Letters
                 StopCoroutine(_throwRoutine);
                 _throwRoutine = null;
             }
-        }
-
-        private void AddSample(PointerEventData e)
-        {
-            _samples.Add(new Sample { screenPos = e.position, time = Time.unscaledTime });
-            if (_samples.Count > maxSamples)
-                _samples.RemoveAt(0);
         }
 
         private Vector2 ComputeThrowVelocityUI()
@@ -237,7 +289,6 @@ namespace Letters
             return null;
         }
 
-
         private static Rect GetWorldRect(RectTransform rt)
         {
             Vector3[] corners = new Vector3[4];
@@ -279,5 +330,37 @@ namespace Letters
 
             Destroy(gameObject);
         }
+        
+        public void SendToBox(Boxes.ServiceBox box, float duration = 0.15f)
+        {
+            if (box == null) return;
+
+            CancelThrowIfAny();
+            canvasGroup.blocksRaycasts = false;
+
+            StartCoroutine(SendToBoxRoutine(box, duration));
+        }
+
+        private IEnumerator SendToBoxRoutine(Boxes.ServiceBox box, float duration)
+        {
+            Vector2 start = _rectTransform.anchoredPosition;
+            Vector2 end = box.RectTransform.anchoredPosition;
+
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                float a = Mathf.Clamp01(t / Mathf.Max(0.0001f, duration));
+                a = 1f - Mathf.Pow(1f - a, 3f);
+                _rectTransform.anchoredPosition = Vector2.LerpUnclamped(start, end, a);
+                yield return null;
+            }
+
+            _rectTransform.anchoredPosition = end;
+            canvasGroup.blocksRaycasts = true;
+
+            box.ResolveHit(this);
+        }
+
     }
 }
