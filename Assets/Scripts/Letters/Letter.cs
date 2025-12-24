@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -45,6 +46,12 @@ namespace Letters
         [SerializeField] private float incorrectShakeDuration = 0.14f;
         [SerializeField] private float incorrectShakeAmplitude = 14f;
         [SerializeField] private float incorrectShakeFrequency = 28f;
+        
+        [Header("PC Send animation(arc)")]
+        [SerializeField] private float pcSendDuration = 0.18f;
+        [SerializeField] private float pcArcHeight = 120f;
+
+        private bool _topArcFlip;
 
         private LetterState _state = LetterState.Idle;
         private RectTransform _rectTransform;
@@ -195,7 +202,17 @@ namespace Letters
         private void StartReturnToSpawn()
         {
             CancelActiveRoutine();
-            _activeRoutine = StartCoroutine(LetterAnimations.ReturnTo(_rectTransform, _rectTransform.anchoredPosition, _spawnAnchoredPos, returnDuration));
+            _activeRoutine = StartCoroutine(ReturnToSpawnRoutine());
+        }
+
+        private IEnumerator ReturnToSpawnRoutine()
+        {
+            var start = _rectTransform.anchoredPosition;
+            yield return LetterAnimations.ReturnTo(_rectTransform, start, _spawnAnchoredPos, returnDuration);
+
+            _activeRoutine = null;
+            if (_state != LetterState.Feedback)
+                _state = LetterState.Idle;
         }
 
         private void CancelActiveRoutine()
@@ -247,22 +264,56 @@ namespace Letters
         {
             if (box == null) return;
 
+            _state = LetterState.Throwing;
             _attemptResolved = false;
+
             CancelActiveRoutine();
             canvasGroup.blocksRaycasts = false;
-            _activeRoutine = StartCoroutine(SendToBoxRoutine(box, duration));
+            float d = duration > 0.0001f ? duration : pcSendDuration;
+            _activeRoutine = StartCoroutine(SendToBoxRoutine(box, d));
         }
 
         private IEnumerator SendToBoxRoutine(Boxes.ServiceBox box, float duration)
         {
             Vector2 start = _rectTransform.anchoredPosition;
             Vector2 end = box.RectTransform.anchoredPosition;
+            Vector2 delta = end - start;
 
-            yield return LetterAnimations.ReturnTo(_rectTransform, start, end, duration);
+            bool isBottom = delta.y < -Mathf.Abs(delta.x);
+            bool isLeft   = delta.x < -Mathf.Abs(delta.y);
+            bool isRight  = delta.x >  Mathf.Abs(delta.y);
+
+            float sideSign;
+            if (isLeft) sideSign = -1f;
+            else if (isRight) sideSign = +1f;
+            else
+            {
+                _topArcFlip = !_topArcFlip;
+                sideSign = _topArcFlip ? -1f : +1f;
+            }
+
+            Tween tween;
+
+            if (isBottom)
+            {
+                tween = _rectTransform
+                    .DOAnchorPos(end, duration)
+                    .SetEase(Ease.OutCubic);
+            }
+            else
+            {
+                tween = UiLetterTweens
+                    .ArcTo(_rectTransform, start, end, duration, pcArcHeight, sideSign);
+            }
+
+            yield return tween.WaitForCompletion();
+
             canvasGroup.blocksRaycasts = true;
             box.ResolveHit(this);
         }
 
+        
+        
         // Called by ServiceBox
         public void ResolveDeliveryResult(Boxes.ServiceBox box, bool isCorrect)
         {
@@ -287,9 +338,9 @@ namespace Letters
 
             yield return LetterAnimations.Shake(_rectTransform, incorrectShakeDuration, incorrectShakeAmplitude, incorrectShakeFrequency);
             canvasGroup.blocksRaycasts = true;
-
-            yield return LetterAnimations.ReturnTo(_rectTransform, _rectTransform.anchoredPosition, _spawnAnchoredPos, returnDuration);
-
+            
+            yield return ReturnToSpawnRoutine();
+            
             _attemptResolved = false;
             _activeRoutine = null;
             _state = LetterState.Idle;
