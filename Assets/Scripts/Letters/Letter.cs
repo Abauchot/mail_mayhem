@@ -13,6 +13,14 @@ namespace Letters
         Circle,
         Diamond
     }
+    
+    public enum LetterState
+    {
+        Idle,
+        Dragging,
+        Throwing,
+        Feedback
+    }
 
     public class Letter : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
@@ -42,6 +50,14 @@ namespace Letters
         
         [Header("Throw (sampling)")]
         [SerializeField] private int maxSamples = 6;             // keep last N samples
+        
+        [Header("Feedback")]
+        [SerializeField] private float incorrectShakeDuration = 0.14f;
+        [SerializeField] private float incorrectShakeAmplitude = 14f;
+        [SerializeField] private float incorrectShakeFrequency = 28f;
+        
+        private LetterState _state = LetterState.Idle;
+        private bool _deliveryResolved;
 
         private RectTransform _rectTransform;
         private Canvas _parentCanvas;
@@ -107,14 +123,18 @@ namespace Letters
         public void SetPointerInputEnabled(bool enabled)
         {
             _pointerInputEnabled = enabled;
-
-            // Sur PC, évite que la lettre capte le pointer
             if (canvasGroup != null)
+            {
                 canvasGroup.blocksRaycasts = enabled;
+            }
         }
 
         public void Grab(Vector2 screenPos)
         {
+            if (_state == LetterState.Throwing || _state == LetterState.Feedback)
+            {
+                return;
+            }
             _spawnAnchoredPos = _rectTransform.anchoredPosition;
             _rectTransform.SetAsLastSibling();
 
@@ -130,11 +150,22 @@ namespace Letters
             _isGrabbing = true;
 
             _lastLocalPointer = ScreenToLocalInParent(screenPos);
+
+            _state = LetterState.Dragging;
+            _deliveryResolved = false;
         }
 
         public void Move(Vector2 screenPos)
         {
-            if (!_isGrabbing) return;
+            if (_state != LetterState.Dragging)
+            {
+                return;
+            }
+            
+            if (!_isGrabbing)
+            {
+                return;
+            }
             
             AddSample(screenPos);
 
@@ -147,6 +178,11 @@ namespace Letters
 
         public void Release(Vector2 screenPos)
         {
+            if (_state != LetterState.Dragging)
+            {
+                return;
+            }
+            
             if (!_isGrabbing) return;
             _isGrabbing = false;
 
@@ -170,6 +206,7 @@ namespace Letters
                 velocity = velocity.normalized * maxThrowSpeed;
 
             _throwRoutine = StartCoroutine(ThrowAndDetect(velocity));
+            _state = LetterState.Throwing;
         }
 
         private void AddSample(Vector2 screenPos)
@@ -244,10 +281,11 @@ namespace Letters
         {
             if (_samples.Count < 2) return Vector2.zero;
 
-            Sample first = _samples[0];
-            Sample last = _samples[^1];
+            int n = _samples.Count;
+            Sample a = _samples[Mathf.Max(0, n - 3)];
+            Sample b = _samples[n - 1];
 
-            float dt = last.time - first.time;
+            float dt = b.time - a.time;
             if (dt <= 0.0001f) return Vector2.zero;
 
             RectTransform parent = _rectTransform.parent as RectTransform;
@@ -257,8 +295,8 @@ namespace Letters
             if (_parentCanvas != null && _parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
                 cam = _parentCanvas.worldCamera;
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, first.screenPos, cam, out var firstLocal);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, last.screenPos, cam, out var lastLocal);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, a.screenPos, cam, out var firstLocal);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, b.screenPos, cam, out var lastLocal);
 
             Vector2 delta = lastLocal - firstLocal;
             return delta / dt;
@@ -266,6 +304,7 @@ namespace Letters
 
         private IEnumerator ThrowAndDetect(Vector2 velocity)
         {
+            _state = LetterState.Throwing;
             canvasGroup.blocksRaycasts = false;
 
             float t = 0f;
@@ -281,10 +320,10 @@ namespace Letters
                 velocity *= damp;
 
                 var hitBox = FindHitBox();
-                if (hitBox != null)
+                if (hitBox)
                 {
                     canvasGroup.blocksRaycasts = true;
-                    hitBox.ResolveHit(this);
+                    hitBox.ResolveHit(this);   
                     yield break;
                 }
 
@@ -342,6 +381,12 @@ namespace Letters
 
             _rectTransform.anchoredPosition = _spawnAnchoredPos;
             _throwRoutine = null;
+            
+            if (_state != LetterState.Feedback)
+            {
+                _state = LetterState.Idle;
+            }
+
         }
 
         public void DestroyLetter()
@@ -387,6 +432,60 @@ namespace Letters
             canvasGroup.blocksRaycasts = true;
 
             box.ResolveHit(this);
+        }
+        
+        public void ResolveDeliveryResult(Boxes.ServiceBox box, bool isCorrect)
+        {
+            if (_deliveryResolved) return;
+            _deliveryResolved = true;
+
+            if (isCorrect)
+            {
+                DestroyLetter();
+            }
+            else
+            {
+                CancelThrowIfAny();
+                _throwRoutine = StartCoroutine(IncorrectFeedbackThenReturn());
+            }
+        }
+        
+        private IEnumerator IncorrectFeedbackThenReturn()
+        {
+            _state = LetterState.Feedback;
+            
+            canvasGroup.blocksRaycasts = false;
+
+            Vector2 basePos = _rectTransform.anchoredPosition;
+            Debug.Log($"[Letter] IncorrectFeedbackThenReturn START - basePos={basePos} duration={incorrectShakeDuration} amplitude={incorrectShakeAmplitude}");
+
+            float t = 0f;
+            float phase = Random.value * Mathf.PI * 2f;
+            Vector2 dir = Vector2.right;              
+
+            while (t < incorrectShakeDuration)
+            {
+                t += Time.unscaledDeltaTime;
+                
+                float a01 = Mathf.Clamp01(t / Mathf.Max(0.0001f, incorrectShakeDuration));
+                float envelope = 1f - a01;
+
+                float s = Mathf.Sin((t * incorrectShakeFrequency) + phase);
+                Vector2 offset = dir * (s * incorrectShakeAmplitude * envelope);
+
+                _rectTransform.anchoredPosition = basePos + offset;
+                yield return null;
+            }
+
+            _rectTransform.anchoredPosition = basePos;
+            
+            Debug.Log("[Letter] IncorrectFeedbackThenReturn END - restoring basePos and returning to spawn");
+
+            canvasGroup.blocksRaycasts = true;
+            
+            yield return ReturnToSpawn();
+
+            _state = LetterState.Idle;
         }
     }
 }

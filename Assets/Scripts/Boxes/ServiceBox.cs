@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Letters;
 
@@ -34,16 +32,10 @@ namespace Boxes
         {
             var got = letter.Symbol;
             var expected = acceptedSymbolType;
-            Debug.Log($"HIT ON BOX_{expected} expected:{expected} got:{got}");
-
-            if (got == expected)
-            {
-                Debug.Log("ServiceBox: Correct letter delivered!");
-            } else
-            {
-                Debug.Log("ServiceBox: Incorrect letter delivered.");
-            }
-            letter.DestroyLetter();
+            
+            bool isCorrect = got == expected;
+            Debug.Log($"HIT ON BOX_{expected} expected:{expected} got:{got} correct:{isCorrect}");
+            letter.ResolveDeliveryResult(this, isCorrect);
 
         }
     }

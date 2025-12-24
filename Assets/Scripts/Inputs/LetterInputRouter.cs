@@ -32,11 +32,22 @@ namespace Inputs
             UnbindAll();
         }
 
-        public void SetCurrentLetter(Letter letter) => _currentLetter = letter;
+        public void SetCurrentLetter(Letter letter)
+        {
+              _currentLetter = letter;
+              if (_currentLetter)
+              {
+                  _currentLetter.SetPointerInputEnabled(!_useMobile);
+              }
+        }
 
         public void UseMobile(bool useMobile)
         {
             _useMobile = useMobile;
+            if(_currentLetter != null)
+            {
+                _currentLetter.SetPointerInputEnabled(!_useMobile);
+            }
             ApplyBindings();
         }
 

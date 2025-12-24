@@ -17,7 +17,7 @@ namespace Boxes
             Rebuild();
         }
 
-        public void Rebuild()
+        private void Rebuild()
         {
             _map.Clear();
             foreach (var b in boxes)

@@ -47,11 +47,13 @@ namespace Inputs
 
         private void OnPressStarted(InputAction.CallbackContext ctx)
         {
+            _lastPos = _inputs.Gameplay_Mobile.Point.ReadValue<Vector2>();
             OnGrab?.Invoke(_lastPos);
         }
 
         private void OnPressCanceled(InputAction.CallbackContext ctx)
         {
+            _lastPos = _inputs.Gameplay_Mobile.Point.ReadValue<Vector2>();
             OnRelease?.Invoke(_lastPos);
         }
     }

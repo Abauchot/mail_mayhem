@@ -1367,7 +1367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a4133f5f87fa04d8a9300f2d46a91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UiPlatformSwitcher
-  platform: 1
+  platform: 2
   uiPcRoot: {fileID: 2010550402}
   uiMobileRoot: {fileID: 154934408}
   spawner: {fileID: 1316036109}
