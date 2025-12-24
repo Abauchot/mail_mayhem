@@ -110,3 +110,14 @@ MonoBehaviour:
   envelopeImage: {fileID: 6651942054970335010}
   canvasGroup: {fileID: 6371931288565763283}
   spawner: {fileID: 0}
+  minThrowSpeed: 900
+  maxThrowSpeed: 3000
+  friction: 6.5
+  maxThrowDuration: 1
+  returnDuration: 0.15
+  throwScale: 1.5
+  flickWeight: 0.75
+  maxSamples: 6
+  incorrectShakeDuration: 0.14
+  incorrectShakeAmplitude: 14
+  incorrectShakeFrequency: 28

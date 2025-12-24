@@ -12,7 +12,7 @@ namespace Letters
 
 
         [Header("Spawn Settings")] [SerializeField]
-        public float spawnInterval = 1.5f;
+        public float spawnInterval = 0.2f;
 
         [SerializeField] public bool spawnOnStart = true;
         

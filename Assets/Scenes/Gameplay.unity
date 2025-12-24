@@ -1367,7 +1367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a4133f5f87fa04d8a9300f2d46a91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UiPlatformSwitcher
-  platform: 2
+  platform: 1
   uiPcRoot: {fileID: 2010550402}
   uiMobileRoot: {fileID: 154934408}
   spawner: {fileID: 1316036109}
@@ -1558,7 +1558,7 @@ MonoBehaviour:
   letterPrefab: {fileID: 7149193216698293777, guid: d82dedfa3eb66734085d74bbee735072, type: 3}
   spawnParent: {fileID: 1917489157}
   boxesRegistry: {fileID: 1235511342}
-  spawnInterval: 1
+  spawnInterval: 0.2
   spawnOnStart: 1
   inputRouter: {fileID: 1235511343}
 --- !u!1001 &1342732176

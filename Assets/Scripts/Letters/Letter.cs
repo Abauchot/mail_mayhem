@@ -1,26 +1,14 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Letters.Throw;
+using Letters.Animations;
 
 namespace Letters
 {
-    public enum SymbolType
-    {
-        Square,
-        Triangle,
-        Circle,
-        Diamond
-    }
-    
-    public enum LetterState
-    {
-        Idle,
-        Dragging,
-        Throwing,
-        Feedback
-    }
+    public enum SymbolType { Square, Triangle, Circle, Diamond }
+    public enum LetterState { Idle, Dragging, Throwing, Feedback }
 
     public class Letter : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
@@ -42,44 +30,39 @@ namespace Letters
         [HideInInspector] public LetterSpawner spawner;
 
         [Header("Throw (tuning)")]
-        [SerializeField] private float minThrowSpeed = 900f;     // UI units/sec
-        [SerializeField] private float maxThrowSpeed = 3000f;    // clamp
-        [SerializeField] private float friction = 6.5f;          // damping
-        [SerializeField] private float maxThrowDuration = 1.0f;  // safety
-        [SerializeField] private float returnDuration = 0.15f;   // return to spawn
-        
+        [SerializeField] private float minThrowSpeed = 900f;
+        [SerializeField] private float maxThrowSpeed = 3000f;
+        [SerializeField] private float friction = 6.5f;
+        [SerializeField] private float maxThrowDuration = 1.0f;
+        [SerializeField] private float returnDuration = 0.15f;
+        [SerializeField] private float throwScale = 1.5f;
+        [SerializeField, Range(0f, 1f)] private float flickWeight = 0.75f;
+
         [Header("Throw (sampling)")]
-        [SerializeField] private int maxSamples = 6;             // keep last N samples
-        
+        [SerializeField] private int maxSamples = 6;
+
         [Header("Feedback")]
         [SerializeField] private float incorrectShakeDuration = 0.14f;
         [SerializeField] private float incorrectShakeAmplitude = 14f;
         [SerializeField] private float incorrectShakeFrequency = 28f;
-        
-        private LetterState _state = LetterState.Idle;
-        private bool _deliveryResolved;
 
+        private LetterState _state = LetterState.Idle;
         private RectTransform _rectTransform;
         private Canvas _parentCanvas;
-
+        private RectTransform _parentRect;
         private Vector2 _spawnAnchoredPos;
-        private Coroutine _throwRoutine;
+        private Coroutine _activeRoutine;
 
         private Boxes.BoxesRegistry _boxesRegistry;
 
-        private readonly List<Sample> _samples = new();
-
         private bool _pointerInputEnabled = true;
-
-        private RectTransform _parentRect;
         private Vector2 _lastLocalPointer;
         private bool _isGrabbing;
+        private bool _attemptResolved;
 
-        private struct Sample
-        {
-            public Vector2 screenPos;
-            public float time;
-        }
+        // Services
+        private UiThrowSampler _sampler;
+        private LetterHitDetector _hitDetector;
 
         private void Awake()
         {
@@ -87,11 +70,10 @@ namespace Letters
             _parentCanvas = GetComponentInParent<Canvas>();
             _parentRect = GetComponentInParent<RectTransform>();
 
-            if (envelopeImage == null)
-                envelopeImage = GetComponent<Image>();
+            if (!envelopeImage) envelopeImage = GetComponent<Image>();
+            if (!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
 
-            if (canvasGroup == null)
-                canvasGroup = GetComponent<CanvasGroup>();
+            _sampler = new UiThrowSampler(maxSamples);
         }
 
         public void Setup(SymbolType type, LetterSpawner ownerSpawner, Boxes.BoxesRegistry boxesRegistry)
@@ -99,6 +81,7 @@ namespace Letters
             symbolType = type;
             spawner = ownerSpawner;
             _boxesRegistry = boxesRegistry;
+            _hitDetector = new LetterHitDetector(_boxesRegistry);
 
             envelopeImage.sprite = type switch
             {
@@ -110,64 +93,49 @@ namespace Letters
             };
 
             _spawnAnchoredPos = _rectTransform.anchoredPosition;
-
             canvasGroup.blocksRaycasts = true;
             canvasGroup.alpha = 1f;
+
+            _state = LetterState.Idle;
+            _attemptResolved = false;
+
+            _sampler.SetMaxSamples(maxSamples);
+            _sampler.Reset();
         }
 
-        /// <summary>
-        /// Enable/disable pointer (EventSystem) input on this letter.
-        /// For your setup: set FALSE on Mobile if you use MobileLetterInput router,
-        /// set TRUE on PC if you want UI drag handlers.
-        /// </summary>
-        public void SetPointerInputEnabled(bool enabled)
+        public void SetPointerInputEnabled(bool isenabled)
         {
-            _pointerInputEnabled = enabled;
-            if (canvasGroup != null)
-            {
-                canvasGroup.blocksRaycasts = enabled;
-            }
+            _pointerInputEnabled = isenabled;
+            if (canvasGroup)
+                canvasGroup.blocksRaycasts = isenabled;
         }
 
         public void Grab(Vector2 screenPos)
         {
-            if (_state == LetterState.Throwing || _state == LetterState.Feedback)
-            {
-                return;
-            }
+            if (_state is LetterState.Throwing or LetterState.Feedback) return;
+
             _spawnAnchoredPos = _rectTransform.anchoredPosition;
             _rectTransform.SetAsLastSibling();
 
-            CancelThrowIfAny();
+            CancelActiveRoutine();
 
-            _samples.Clear();
-            
-            AddSample(screenPos);
+            _sampler.Reset();
+            _sampler.BeginGrab(screenPos, Time.unscaledTime);
 
             canvasGroup.blocksRaycasts = false;
             canvasGroup.alpha = 0.8f;
 
             _isGrabbing = true;
-
             _lastLocalPointer = ScreenToLocalInParent(screenPos);
 
             _state = LetterState.Dragging;
-            _deliveryResolved = false;
         }
 
         public void Move(Vector2 screenPos)
         {
-            if (_state != LetterState.Dragging)
-            {
-                return;
-            }
-            
-            if (!_isGrabbing)
-            {
-                return;
-            }
-            
-            AddSample(screenPos);
+            if (_state != LetterState.Dragging || !_isGrabbing) return;
+
+            _sampler.AddSample(screenPos, Time.unscaledTime);
 
             var local = ScreenToLocalInParent(screenPos);
             var delta = local - _lastLocalPointer;
@@ -178,23 +146,16 @@ namespace Letters
 
         public void Release(Vector2 screenPos)
         {
-            if (_state != LetterState.Dragging)
-            {
-                return;
-            }
-            
-            if (!_isGrabbing) return;
-            _isGrabbing = false;
+            if (_state != LetterState.Dragging || !_isGrabbing) return;
 
+            _isGrabbing = false;
             canvasGroup.alpha = 1f;
             canvasGroup.blocksRaycasts = true;
-            
-            AddSample(screenPos);
 
-            Vector2 velocity = ComputeThrowVelocityUI();
+            _sampler.AddSample(screenPos, Time.unscaledTime);
+
+            Vector2 velocity = _sampler.ComputeVelocity(_parentRect, _parentCanvas, flickWeight, throwScale);
             float speed = velocity.magnitude;
-
-             Debug.Log($"Throw speed: {speed}");
 
             if (speed < minThrowSpeed)
             {
@@ -205,28 +166,13 @@ namespace Letters
             if (speed > maxThrowSpeed)
                 velocity = velocity.normalized * maxThrowSpeed;
 
-            _throwRoutine = StartCoroutine(ThrowAndDetect(velocity));
+            _activeRoutine = StartCoroutine(ThrowAndDetect(velocity));
             _state = LetterState.Throwing;
-        }
-
-        private void AddSample(Vector2 screenPos)
-        {
-            _samples.Add(new Sample
-            {
-                screenPos = screenPos,
-                time = Time.unscaledTime
-            });
-
-            if (maxSamples < 2) maxSamples = 2;
-            
-            while (_samples.Count > maxSamples)
-                _samples.RemoveAt(0);
         }
 
         private Vector2 ScreenToLocalInParent(Vector2 screenPos)
         {
             if (_parentRect == null) return Vector2.zero;
-
             Camera cam = null;
             if (_parentCanvas != null && _parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
                 cam = _parentCanvas.worldCamera;
@@ -235,80 +181,39 @@ namespace Letters
             return local;
         }
 
-        // --- EventSystem handlers (only if pointer input enabled) ---
-
+        // EventSystem
         public void OnPointerDown(PointerEventData eventData)
         {
             if (!_pointerInputEnabled) return;
             _spawnAnchoredPos = _rectTransform.anchoredPosition;
             _rectTransform.SetAsLastSibling();
         }
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            if (!_pointerInputEnabled) return;
-            Grab(eventData.position);
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            if (!_pointerInputEnabled) return;
-            Move(eventData.position);
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            if (!_pointerInputEnabled) return;
-            Release(eventData.position);
-        }
+        public void OnBeginDrag(PointerEventData eventData) { if (_pointerInputEnabled) Grab(eventData.position); }
+        public void OnDrag(PointerEventData eventData) { if (_pointerInputEnabled) Move(eventData.position); }
+        public void OnEndDrag(PointerEventData eventData) { if (_pointerInputEnabled) Release(eventData.position); }
 
         private void StartReturnToSpawn()
         {
-            if (_throwRoutine != null) StopCoroutine(_throwRoutine);
-            _throwRoutine = StartCoroutine(ReturnToSpawn());
+            CancelActiveRoutine();
+            _activeRoutine = StartCoroutine(LetterAnimations.ReturnTo(_rectTransform, _rectTransform.anchoredPosition, _spawnAnchoredPos, returnDuration));
         }
 
-        private void CancelThrowIfAny()
+        private void CancelActiveRoutine()
         {
-            if (_throwRoutine != null)
+            if (_activeRoutine != null)
             {
-                StopCoroutine(_throwRoutine);
-                _throwRoutine = null;
+                StopCoroutine(_activeRoutine);
+                _activeRoutine = null;
             }
-        }
-
-        private Vector2 ComputeThrowVelocityUI()
-        {
-            if (_samples.Count < 2) return Vector2.zero;
-
-            int n = _samples.Count;
-            Sample a = _samples[Mathf.Max(0, n - 3)];
-            Sample b = _samples[n - 1];
-
-            float dt = b.time - a.time;
-            if (dt <= 0.0001f) return Vector2.zero;
-
-            RectTransform parent = _rectTransform.parent as RectTransform;
-            if (parent == null) return Vector2.zero;
-
-            Camera cam = null;
-            if (_parentCanvas != null && _parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
-                cam = _parentCanvas.worldCamera;
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, a.screenPos, cam, out var firstLocal);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, b.screenPos, cam, out var lastLocal);
-
-            Vector2 delta = lastLocal - firstLocal;
-            return delta / dt;
         }
 
         private IEnumerator ThrowAndDetect(Vector2 velocity)
         {
+            _attemptResolved = false;
             _state = LetterState.Throwing;
             canvasGroup.blocksRaycasts = false;
 
             float t = 0f;
-
             while (t < maxThrowDuration)
             {
                 float dt = Time.unscaledDeltaTime;
@@ -319,11 +224,11 @@ namespace Letters
                 float damp = Mathf.Exp(-friction * dt);
                 velocity *= damp;
 
-                var hitBox = FindHitBox();
+                var hitBox = _hitDetector?.FindHit(_rectTransform);
                 if (hitBox)
                 {
                     canvasGroup.blocksRaycasts = true;
-                    hitBox.ResolveHit(this);   
+                    hitBox.ResolveHit(this);
                     yield break;
                 }
 
@@ -334,83 +239,18 @@ namespace Letters
             }
 
             canvasGroup.blocksRaycasts = true;
-            _throwRoutine = StartCoroutine(ReturnToSpawn());
+            StartReturnToSpawn();
         }
 
-        private Boxes.ServiceBox FindHitBox()
-        {
-            if (!_boxesRegistry) return null;
-
-            Rect letterRect = GetWorldRect(_rectTransform);
-
-            foreach (var box in _boxesRegistry.Boxes)
-            {
-                if (!box) continue;
-
-                Rect boxRect = GetWorldRect(box.RectTransform);
-                if (letterRect.Overlaps(boxRect, true))
-                    return box;
-            }
-
-            return null;
-        }
-
-        private static Rect GetWorldRect(RectTransform rt)
-        {
-            Vector3[] corners = new Vector3[4];
-            rt.GetWorldCorners(corners);
-            Vector2 min = corners[0];
-            Vector2 max = corners[2];
-            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
-        }
-
-        private IEnumerator ReturnToSpawn()
-        {
-            Vector2 start = _rectTransform.anchoredPosition;
-            float elapsed = 0f;
-
-            while (elapsed < returnDuration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float a = Mathf.Clamp01(elapsed / returnDuration);
-                a = 1f - Mathf.Pow(1f - a, 3f); // ease-out
-
-                _rectTransform.anchoredPosition = Vector2.LerpUnclamped(start, _spawnAnchoredPos, a);
-                yield return null;
-            }
-
-            _rectTransform.anchoredPosition = _spawnAnchoredPos;
-            _throwRoutine = null;
-            
-            if (_state != LetterState.Feedback)
-            {
-                _state = LetterState.Idle;
-            }
-
-        }
-
-        public void DestroyLetter()
-        {
-            if (_throwRoutine != null)
-            {
-                StopCoroutine(_throwRoutine);
-                _throwRoutine = null;
-            }
-
-            if (spawner != null)
-                spawner.OnLetterDestroyed(this);
-
-            Destroy(gameObject);
-        }
-
+        // PC send
         public void SendToBox(Boxes.ServiceBox box, float duration = 0.15f)
         {
             if (box == null) return;
 
-            CancelThrowIfAny();
+            _attemptResolved = false;
+            CancelActiveRoutine();
             canvasGroup.blocksRaycasts = false;
-
-            StartCoroutine(SendToBoxRoutine(box, duration));
+            _activeRoutine = StartCoroutine(SendToBoxRoutine(box, duration));
         }
 
         private IEnumerator SendToBoxRoutine(Boxes.ServiceBox box, float duration)
@@ -418,26 +258,16 @@ namespace Letters
             Vector2 start = _rectTransform.anchoredPosition;
             Vector2 end = box.RectTransform.anchoredPosition;
 
-            float t = 0f;
-            while (t < duration)
-            {
-                t += Time.unscaledDeltaTime;
-                float a = Mathf.Clamp01(t / Mathf.Max(0.0001f, duration));
-                a = 1f - Mathf.Pow(1f - a, 3f);
-                _rectTransform.anchoredPosition = Vector2.LerpUnclamped(start, end, a);
-                yield return null;
-            }
-
-            _rectTransform.anchoredPosition = end;
+            yield return LetterAnimations.ReturnTo(_rectTransform, start, end, duration);
             canvasGroup.blocksRaycasts = true;
-
             box.ResolveHit(this);
         }
-        
+
+        // Called by ServiceBox
         public void ResolveDeliveryResult(Boxes.ServiceBox box, bool isCorrect)
         {
-            if (_deliveryResolved) return;
-            _deliveryResolved = true;
+            if (_attemptResolved) return;
+            _attemptResolved = true;
 
             if (isCorrect)
             {
@@ -445,47 +275,38 @@ namespace Letters
             }
             else
             {
-                CancelThrowIfAny();
-                _throwRoutine = StartCoroutine(IncorrectFeedbackThenReturn());
+                CancelActiveRoutine();
+                _activeRoutine = StartCoroutine(IncorrectFeedbackThenReturn());
             }
         }
-        
+
         private IEnumerator IncorrectFeedbackThenReturn()
         {
             _state = LetterState.Feedback;
-            
             canvasGroup.blocksRaycasts = false;
 
-            Vector2 basePos = _rectTransform.anchoredPosition;
-            Debug.Log($"[Letter] IncorrectFeedbackThenReturn START - basePos={basePos} duration={incorrectShakeDuration} amplitude={incorrectShakeAmplitude}");
+            yield return LetterAnimations.Shake(_rectTransform, incorrectShakeDuration, incorrectShakeAmplitude, incorrectShakeFrequency);
+            canvasGroup.blocksRaycasts = true;
 
-            float t = 0f;
-            float phase = Random.value * Mathf.PI * 2f;
-            Vector2 dir = Vector2.right;              
+            yield return LetterAnimations.ReturnTo(_rectTransform, _rectTransform.anchoredPosition, _spawnAnchoredPos, returnDuration);
 
-            while (t < incorrectShakeDuration)
+            _attemptResolved = false;
+            _activeRoutine = null;
+            _state = LetterState.Idle;
+        }
+
+        public void DestroyLetter()
+        {
+            if (_activeRoutine != null)
             {
-                t += Time.unscaledDeltaTime;
-                
-                float a01 = Mathf.Clamp01(t / Mathf.Max(0.0001f, incorrectShakeDuration));
-                float envelope = 1f - a01;
-
-                float s = Mathf.Sin((t * incorrectShakeFrequency) + phase);
-                Vector2 offset = dir * (s * incorrectShakeAmplitude * envelope);
-
-                _rectTransform.anchoredPosition = basePos + offset;
-                yield return null;
+                StopCoroutine(_activeRoutine);
+                _activeRoutine = null;
             }
 
-            _rectTransform.anchoredPosition = basePos;
-            
-            Debug.Log("[Letter] IncorrectFeedbackThenReturn END - restoring basePos and returning to spawn");
+            if (spawner)
+                spawner.OnLetterDestroyed(this);
 
-            canvasGroup.blocksRaycasts = true;
-            
-            yield return ReturnToSpawn();
-
-            _state = LetterState.Idle;
+            Destroy(gameObject);
         }
     }
 }
