@@ -1,5 +1,4 @@
 using System.Collections;
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -48,8 +47,7 @@ namespace Letters
         [SerializeField] private float incorrectShakeFrequency = 28f;
         
         [Header("PC Send animation(arc)")]
-        [SerializeField] private float pcSendDuration = 0.18f;
-        [SerializeField] private float pcArcHeight = 120f;
+        [SerializeField] private float pcSendDuration = 0.16f;
 
         private bool _topArcFlip;
 
@@ -275,42 +273,17 @@ namespace Letters
 
         private IEnumerator SendToBoxRoutine(Boxes.ServiceBox box, float duration)
         {
+            RectTransform letterParent = _rectTransform.parent as RectTransform;
+
             Vector2 start = _rectTransform.anchoredPosition;
-            Vector2 end = box.RectTransform.anchoredPosition;
-            Vector2 delta = end - start;
+            Vector2 end = LetterAnimations.GetLocalPointIn(letterParent, box.RectTransform, _parentCanvas);
 
-            bool isBottom = delta.y < -Mathf.Abs(delta.x);
-            bool isLeft   = delta.x < -Mathf.Abs(delta.y);
-            bool isRight  = delta.x >  Mathf.Abs(delta.y);
-
-            float sideSign;
-            if (isLeft) sideSign = -1f;
-            else if (isRight) sideSign = +1f;
-            else
-            {
-                _topArcFlip = !_topArcFlip;
-                sideSign = _topArcFlip ? -1f : +1f;
-            }
-
-            Tween tween;
-
-            if (isBottom)
-            {
-                tween = _rectTransform
-                    .DOAnchorPos(end, duration)
-                    .SetEase(Ease.OutCubic);
-            }
-            else
-            {
-                tween = UiLetterTweens
-                    .ArcTo(_rectTransform, start, end, duration, pcArcHeight, sideSign);
-            }
-
-            yield return tween.WaitForCompletion();
+            yield return LetterAnimations.ReturnTo(_rectTransform, start, end, duration);
 
             canvasGroup.blocksRaycasts = true;
             box.ResolveHit(this);
         }
+
 
         
         
