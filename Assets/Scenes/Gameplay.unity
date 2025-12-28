@@ -1472,6 +1472,8 @@ GameObject:
   - component: {fileID: 1235511345}
   - component: {fileID: 1235511344}
   - component: {fileID: 1235511346}
+  - component: {fileID: 1235511347}
+  - component: {fileID: 1235511348}
   m_Layer: 0
   m_Name: GameSystems
   m_TagString: Untagged
@@ -1569,6 +1571,35 @@ MonoBehaviour:
   pcSpawnParent: {fileID: 1641271261}
   mobileSpawnParent: {fileID: 1917489157}
   inputRouter: {fileID: 1235511343}
+--- !u!114 &1235511347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 460442f81f3b6d044b22f69435072c85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameModes.GameSessionController
+  currentMode: {fileID: 11400000, guid: 74a50ced8841337439eccb34012a256c, type: 2}
+  isRunning: 0
+--- !u!114 &1235511348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 171594f4ab592584089999d9a6527811, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DebugTools.DebugStartRunKeyboard
+  sessionController: {fileID: 1235511347}
+  modeToStart: {fileID: 11400000, guid: 74a50ced8841337439eccb34012a256c, type: 2}
+  key: 94
 --- !u!1 &1249676640
 GameObject:
   m_ObjectHideFlags: 0
@@ -2183,7 +2214,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
