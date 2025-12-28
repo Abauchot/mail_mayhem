@@ -90,3 +90,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Boxes.ServiceBox
   acceptedSymbolType: 0
   backgroundImage: {fileID: 0}
+  rectTransform: {fileID: 157620672820077701}

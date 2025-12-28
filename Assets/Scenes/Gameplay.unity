@@ -1473,7 +1473,11 @@ GameObject:
   - component: {fileID: 1235511344}
   - component: {fileID: 1235511346}
   - component: {fileID: 1235511347}
+  - component: {fileID: 1235511350}
+  - component: {fileID: 1235511352}
+  - component: {fileID: 1235511351}
   - component: {fileID: 1235511348}
+  - component: {fileID: 1235511349}
   m_Layer: 0
   m_Name: GameSystems
   m_TagString: Untagged
@@ -1585,6 +1589,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameModes.GameSessionController
   currentMode: {fileID: 11400000, guid: 74a50ced8841337439eccb34012a256c, type: 2}
   isRunning: 0
+  runStatsTracker: {fileID: 1235511350}
 --- !u!114 &1235511348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1600,6 +1605,58 @@ MonoBehaviour:
   sessionController: {fileID: 1235511347}
   modeToStart: {fileID: 11400000, guid: 74a50ced8841337439eccb34012a256c, type: 2}
   key: 94
+  mistake: 95
+--- !u!114 &1235511349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d7591724dd226d49aee1b27f7b749e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DebugTools.DebugRunEnd
+  session: {fileID: 1235511347}
+--- !u!114 &1235511350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 987cf2b20502af04d98bc9b21dbca5e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Stats.RunStatsTracker
+--- !u!114 &1235511351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 822df9f39e44d3c4d92d65d8fea56f11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Core.GameEventsProvider
+--- !u!114 &1235511352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad3cb5053c0515a4baeab115405e0438, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Stats.RunStatsTrackerListener
+  eventsProvider: {fileID: 1235511351}
+  stats: {fileID: 1235511350}
 --- !u!1 &1249676640
 GameObject:
   m_ObjectHideFlags: 0

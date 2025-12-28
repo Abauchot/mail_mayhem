@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using GameModes;
+using Stats;
 
 namespace GameModes
 {
@@ -22,6 +22,11 @@ namespace GameModes
         public bool IsRunning => isRunning;
         public float TimeLeft => _timeLeft;
         public int MistakesLeft => _mistakesLeft;
+        
+        
+        // Events 
+        public event Action<RunResult> onRunEnded; 
+        [SerializeField] private RunStatsTracker runStatsTracker;
 
         private void Update()
         {
@@ -44,6 +49,7 @@ namespace GameModes
         
         public void StartRun(GameModeDefinition mode)
         {
+            runStatsTracker?.ResetStats();
             if (isRunning) return;
             if (!mode)
             {
@@ -95,11 +101,25 @@ namespace GameModes
             isRunning = false;
             float duration = Time.time - _runStartTime;
             Debug.Log($"Run ended: Mode={currentMode.displayName}, Duration={duration:0.00}s");
+
+            var runResult = new RunResult
+            {
+                mode = currentMode.mode,
+                modeName = currentMode.displayName,
+                score = 0, //TODO: calculate score
+                maxCombo = 0, //TODO: track max combo
+                correctCount = runStatsTracker ? runStatsTracker.CorrectCount : 0,
+                wrongCount = runStatsTracker ? runStatsTracker.WrongCount : 0,
+                durationSeconds = duration,
+                endedAtIso = DateTime.UtcNow.ToString("O")
+            };
             
-              //TODO :
-              // - Build RunResult
-              // - Send to Leaderboard
-              // - Show Summary UI
+            onRunEnded?.Invoke(runResult);
+
+            //TODO :
+            // - Build RunResult
+            // - Send to Leaderboard
+            // - Show Summary UI
         }
     }
 }
