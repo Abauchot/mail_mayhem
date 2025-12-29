@@ -21,9 +21,17 @@ namespace Inputs
             if (!pcInput) pcInput = GetComponent<PcLetterInput>() ?? FindFirstObjectByType<PcLetterInput>();
             if (!mobileInput) mobileInput = GetComponent<MobileLetterInput>() ?? FindFirstObjectByType<MobileLetterInput>();
         }
+        
+        private void EnsureRefs()
+        {
+            if (!boxesRegistry) boxesRegistry = FindFirstObjectByType<BoxesRegistry>();
+            if (!pcInput) pcInput = GetComponent<PcLetterInput>() ?? FindFirstObjectByType<PcLetterInput>();
+            if (!mobileInput) mobileInput = GetComponent<MobileLetterInput>() ?? FindFirstObjectByType<MobileLetterInput>();
+        }
 
         private void OnEnable()
         {
+            EnsureRefs();
             ApplyBindings();
         }
 
@@ -48,6 +56,7 @@ namespace Inputs
             {
                 _currentLetter.SetPointerInputEnabled(!_useMobile);
             }
+            EnsureRefs();
             ApplyBindings();
         }
 
@@ -55,6 +64,7 @@ namespace Inputs
         {
             if (!isActiveAndEnabled) return;
 
+            EnsureRefs();
             UnbindAll();
 
             if (_useMobile)

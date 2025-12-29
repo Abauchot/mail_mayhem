@@ -11,17 +11,23 @@ namespace DebugTools
 
         private void OnEnable()
         {
-            session.onRunEnded += Handheld;
+            session.OnRunEnded += Handheld;
         }
         private void OnDisable()
         {
-            session.onRunEnded -= Handheld;
+            session.OnRunEnded -= Handheld;
         }
         
         private void Handheld(RunResult result)
         {
-            Debug.Log($"[RUN RESULT] mode={result.modeName} duration={result.durationSeconds:0.00}s " +
-                      $"correct={result.correctCount} wrong={result.wrongCount}");
+            Debug.Log($"[RUN RESULT] " +
+                      $"mode={result.modeName} " +
+                      $"score={result.score}" +
+                      $" maxCombo={result.maxCombo} " +
+                      $"duration={result.durationSeconds:0.00}s " +
+                      $"correct={result.correctCount} " +
+                      $"wrong={result.wrongCount}"
+                      );
         }
     }
 }

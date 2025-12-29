@@ -7,9 +7,12 @@ namespace GameModes
     public sealed class GameSessionController : MonoBehaviour
     {
         [Header("Mode")] [SerializeField] private GameModeDefinition currentMode;
+        public GameModeDefinition CurrentMode => currentMode;
 
         [Header("Runtime state")] [SerializeField]
         private bool isRunning;
+        
+        [SerializeField] private Scoring.ScoreSystemListener scoreSystem;
 
         //Time Attack 
         private float _timeLeft;
@@ -25,7 +28,7 @@ namespace GameModes
         
         
         // Events 
-        public event Action<RunResult> onRunEnded; 
+        public event Action<RunResult> OnRunEnded; 
         [SerializeField] private RunStatsTracker runStatsTracker;
 
         private void Update()
@@ -49,6 +52,7 @@ namespace GameModes
         
         public void StartRun(GameModeDefinition mode)
         {
+            scoreSystem?.ResetForRun(mode);
             runStatsTracker?.ResetStats();
             if (isRunning) return;
             if (!mode)
@@ -57,6 +61,9 @@ namespace GameModes
                 return;
             }
 
+            scoreSystem?.ResetForRun(mode);
+            runStatsTracker?.ResetStats();
+            
             currentMode = mode;
             isRunning = true;
             _runStartTime = Time.time;
@@ -106,15 +113,18 @@ namespace GameModes
             {
                 mode = currentMode.mode,
                 modeName = currentMode.displayName,
-                score = 0, //TODO: calculate score
-                maxCombo = 0, //TODO: track max combo
+                score = scoreSystem ? scoreSystem.Score : 0,
+                maxCombo = scoreSystem ? scoreSystem.MaxCombo : 0,
                 correctCount = runStatsTracker ? runStatsTracker.CorrectCount : 0,
                 wrongCount = runStatsTracker ? runStatsTracker.WrongCount : 0,
                 durationSeconds = duration,
                 endedAtIso = DateTime.UtcNow.ToString("O")
             };
+            Debug.Log($"Run result: mode={runResult.modeName} score={runResult.score} maxCombo={runResult.maxCombo} " +
+                      $"correct={runResult.correctCount} wrong={runResult.wrongCount} duration={runResult.durationSeconds:0.00}s " +
+                      $"endedAt={runResult.endedAtIso}");
             
-            onRunEnded?.Invoke(runResult);
+            OnRunEnded?.Invoke(runResult);
 
             //TODO :
             // - Build RunResult
