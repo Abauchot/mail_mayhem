@@ -16,9 +16,15 @@ namespace Boxes
         [SerializeField] public Image backgroundImage;
         
         [SerializeField] private RectTransform rectTransform;
+        private GameModes.GameSessionController _session;
         
         public RectTransform RectTransform => rectTransform;
         public SymbolType SymbolType => acceptedSymbolType;
+
+        private void Awake()
+        {
+            _session = FindFirstObjectByType<GameModes.GameSessionController>();
+        }
 
 
         private void Reset()
@@ -33,6 +39,10 @@ namespace Boxes
         /// <param name="letter"></param>
         public void ResolveHit(Letters.Letter letter)
         {
+            if (_session && !_session.IsRunning)
+            {
+                return; 
+            }
             var got = letter.Symbol;
             var expected = acceptedSymbolType;
             
@@ -48,6 +58,11 @@ namespace Boxes
                 return;
             }
 
+            if (!Core.GameEventsProvider.Instance)
+            {
+                return;
+            }
+            
             var result = new DeliveryResult(expected, got, isCorrect);
             eventsProvider.Events.Publish(result);
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Core;
+using GameModes;
 
 namespace Stats
 {
@@ -7,12 +8,13 @@ namespace Stats
     {
         [SerializeField] private GameEventsProvider eventsProvider;
         [SerializeField] private RunStatsTracker stats;
+        [SerializeField] private GameSessionController session;
 
         private bool _subscribed;
 
         private void Start()
         {
-            if (eventsProvider == null)
+            if (eventsProvider == null || stats == null  || session == null )
             {
                 Debug.LogError($"{name}: eventsProvider is NULL");
                 return;

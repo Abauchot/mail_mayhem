@@ -1476,6 +1476,7 @@ GameObject:
   - component: {fileID: 1235511350}
   - component: {fileID: 1235511352}
   - component: {fileID: 1235511351}
+  - component: {fileID: 1235511353}
   - component: {fileID: 1235511348}
   - component: {fileID: 1235511349}
   m_Layer: 0
@@ -1657,6 +1658,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Stats.RunStatsTrackerListener
   eventsProvider: {fileID: 1235511351}
   stats: {fileID: 1235511350}
+  session: {fileID: 1235511347}
+--- !u!114 &1235511353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3c714cfc57d16e42a1ec138216af84d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameModes.SurvivalMistakeListener
+  eventsProvider: {fileID: 1235511351}
+  session: {fileID: 1235511347}
 --- !u!1 &1249676640
 GameObject:
   m_ObjectHideFlags: 0
