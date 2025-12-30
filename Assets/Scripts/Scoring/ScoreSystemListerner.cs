@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Core;
 using GameModes;
@@ -10,11 +11,16 @@ namespace Scoring
         [SerializeField] private GameSessionController session;
 
         private ScoreState _state;
+        private bool _subscribed;
+        
+        public event Action<ScoreSnapshot> OnScoreChanged;
 
         public int Score => _state?.Score ?? 0;
+        public int Combo => _state?.Combo ?? 0;
+        public int Multiplier => _state?.Multiplier ?? 1;
         public int MaxCombo => _state?.MaxCombo ?? 0;
 
-        private bool _subscribed;
+        
 
         private void Start()
         {
@@ -39,6 +45,7 @@ namespace Scoring
         {
             _state = new ScoreState(mode.comboConfig);
             _state.Reset();
+            Notify();
         }
 
         private void OnDelivery(DeliveryResult result)
@@ -47,9 +54,19 @@ namespace Scoring
             if (_state == null) return;
 
             if (result.isCorrect)
+            {
                 _state.RegisterCorrect(session.CurrentMode.basePointPerCorrect);
+            }
             else
+            {
                 _state.RegisterWrong();
+            }
+            Notify();
+        }
+        
+        private void Notify()
+        {
+            OnScoreChanged?.Invoke(new ScoreSnapshot(Score, Combo, Multiplier, MaxCombo));
         }
     }
 }
