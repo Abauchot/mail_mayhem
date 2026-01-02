@@ -1921,6 +1921,7 @@ MonoBehaviour:
   currentMode: {fileID: 11400000, guid: 74a50ced8841337439eccb34012a256c, type: 2}
   isRunning: 0
   scoreSystem: {fileID: 1235511354}
+  spawner: {fileID: 1316036109}
   runStatsTracker: {fileID: 1235511350}
 --- !u!114 &1235511348
 MonoBehaviour:
@@ -2202,9 +2203,10 @@ MonoBehaviour:
   letterPrefab: {fileID: 7149193216698293777, guid: d82dedfa3eb66734085d74bbee735072, type: 3}
   spawnParent: {fileID: 1917489157}
   boxesRegistry: {fileID: 1235511342}
+  inputRouter: {fileID: 1235511343}
+  session: {fileID: 0}
   spawnInterval: 0.2
   spawnOnStart: 1
-  inputRouter: {fileID: 1235511343}
 --- !u!1001 &1342732176
 PrefabInstance:
   m_ObjectHideFlags: 0

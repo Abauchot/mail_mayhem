@@ -1,42 +1,39 @@
 using UnityEngine;
+using GameModes;
 
 namespace Letters
 {
     public class LetterSpawner : MonoBehaviour
     {
-        [Header("References")] [SerializeField]
-        public Letter letterPrefab;
-
-        [SerializeField] public RectTransform spawnParent;
+        [Header("References")]
+        [SerializeField] private Letter letterPrefab;
+        [SerializeField] private RectTransform spawnParent;
         [SerializeField] private Boxes.BoxesRegistry boxesRegistry;
-
-
-        [Header("Spawn Settings")] [SerializeField]
-        public float spawnInterval = 0.2f;
-
-        [SerializeField] public bool spawnOnStart = true;
-        
         [SerializeField] private Inputs.LetterInputRouter inputRouter;
+        [SerializeField] private GameSessionController session;
 
+        [Header("Spawn Settings")]
+        [SerializeField] private float spawnInterval = 0.2f;
+        [SerializeField] private bool spawnOnStart = true;
 
         private float _timer;
         private Letter _currentLetter;
 
+        private ISymbolProvider _symbolProvider;
+        private const int SymbolCount = 4;
+
+        public void SetSymbolProvider(ISymbolProvider provider) => _symbolProvider = provider;
 
         private void Start()
         {
-            if (spawnOnStart)
-            {
-                SpawnLetter();
-            }
+            if (session != null && !session.IsRunning) return;
+            if (spawnOnStart) SpawnLetter();
         }
 
         private void Update()
         {
-            if (_currentLetter)
-            {
-                return;
-            }
+            if (session != null && !session.IsRunning) return;
+            if (_currentLetter) return;
 
             _timer += Time.deltaTime;
             if (_timer >= spawnInterval)
@@ -60,29 +57,27 @@ namespace Letters
             _currentLetter = Instantiate(letterPrefab, spawnParent);
 
 #if UNITY_ANDROID || UNITY_IOS
-    _currentLetter.SetPointerInputEnabled(true);
+            _currentLetter.SetPointerInputEnabled(true);
 #else
             _currentLetter.SetPointerInputEnabled(false);
 #endif
 
-            RectTransform rt = _currentLetter.GetComponent<RectTransform>();
-
+            var rt = _currentLetter.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = Vector2.zero;
-
             rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 260f);
             rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 180f);
 
-            int symbolCount = System.Enum.GetNames(typeof(SymbolType)).Length;
-            SymbolType randomSymbol = (SymbolType)Random.Range(0, symbolCount);
+            var symbol = _symbolProvider != null
+                ? _symbolProvider.Next()
+                : (SymbolType)Random.Range(0, SymbolCount);
 
-            _currentLetter.Setup(randomSymbol, this, boxesRegistry);
+            _currentLetter.Setup(symbol, this, boxesRegistry);
 
             if (inputRouter != null)
                 inputRouter.SetCurrentLetter(_currentLetter);
         }
-
 
         public void OnLetterDestroyed(Letter letter)
         {
@@ -92,11 +87,7 @@ namespace Letters
                 _timer = 0f;
             }
         }
-        
-        public void SetSpawnParent(RectTransform parent)
-        {
-            spawnParent = parent;
-        }
 
+        public void SetSpawnParent(RectTransform parent) => spawnParent = parent;
     }
 }

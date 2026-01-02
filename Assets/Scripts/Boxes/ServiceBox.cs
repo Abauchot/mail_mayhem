@@ -47,8 +47,6 @@ namespace Boxes
             var expected = acceptedSymbolType;
             
             bool isCorrect = got == expected;
-            Debug.Log($"HIT ON BOX_{expected} expected:{expected} got:{got} correct:{isCorrect}");
-            
             letter.ResolveDeliveryResult(this, isCorrect);
             
             var eventsProvider = GameEventsProvider.Instance;

@@ -14,6 +14,9 @@ namespace GameModes
         
         [SerializeField] private Scoring.ScoreSystemListener scoreSystem;
 
+        [SerializeField]
+        private Letters.LetterSpawner spawner;
+
         //Time Attack 
         private float _timeLeft;
 
@@ -33,27 +36,49 @@ namespace GameModes
 
         private void Update()
         {
-            if (!isRunning)
-            {
-                return;
-            }
+             if (!isRunning)
+             {
+                 return;
+             }
 
-            if (currentMode.mode == GameMode.TimeAttack)
-            {
-                _timeLeft -= Time.deltaTime;
-                if (_timeLeft <= 0f)
-                {
-                    EndRun();
-                }
-            }
+             if (currentMode.mode == GameMode.TimeAttack)
+             {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                 if (currentMode.debug.enabled && currentMode.debug.freezeTime)
+                     return;
+#endif
+
+                 _timeLeft -= Time.deltaTime;
+                 if (_timeLeft <= 0f) EndRun();
+             }
         }
 
         // === Public API === 
         
+        private void ApplyModeToSpawner(GameModeDefinition mode)
+        {
+            if (spawner == null) return;
+
+            int? seed = null;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (mode.debug.enabled && mode.debug.useSeed)
+                seed = mode.debug.seed;
+#endif
+
+            Letters.ISymbolProvider provider = new Letters.RandomSymbolProvider(seed);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (mode.debug.enabled && mode.debug.forceSymbol)
+                provider = new Letters.ForcedSymbolProvider(mode.debug.forcedSymbol);
+#endif
+
+            spawner.SetSymbolProvider(provider);
+        }
+
+        
         public void StartRun(GameModeDefinition mode)
         {
-            scoreSystem?.ResetForRun(mode);
-            runStatsTracker?.ResetStats();
             if (isRunning) return;
             if (!mode)
             {
@@ -61,10 +86,13 @@ namespace GameModes
                 return;
             }
 
+            currentMode = mode;
+
+            ApplyModeToSpawner(mode);
+
             scoreSystem?.ResetForRun(mode);
             runStatsTracker?.ResetStats();
-            
-            currentMode = mode;
+
             isRunning = true;
             _runStartTime = Time.time;
 
@@ -83,12 +111,17 @@ namespace GameModes
             }
         }
 
+
         public void RegisterMistake()
         {
             if (!isRunning || currentMode.mode != GameMode.Survival)
             {
                 return;
             }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (currentMode.debug.enabled && currentMode.debug.infiniteMistakes)
+                return;
+#endif
 
             _mistakesLeft--;
             Debug.Log($"Mistake registered. Mistakes left: {_mistakesLeft}");
