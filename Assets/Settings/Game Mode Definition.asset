@@ -19,8 +19,8 @@ MonoBehaviour:
   timeAttackDurationSeconds: 10
   maxMistakes: 3
   debug:
-    enabled: 1
-    forceSymbol: 1
+    enabled: 0
+    forceSymbol: 0
     forcedSymbol: 0
     freezeTime: 0
     infiniteMistakes: 0

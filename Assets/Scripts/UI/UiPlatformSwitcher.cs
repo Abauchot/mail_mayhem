@@ -30,6 +30,8 @@ namespace UI
 
         [SerializeField] private Inputs.LetterInputRouter inputRouter;
 
+        [SerializeField] private Boxes.BoxesRegistry registry;
+
         private void Awake()
         {
             Apply();
@@ -89,6 +91,15 @@ namespace UI
 
             if (!inputRouter)
                 inputRouter = GetComponentInChildren<Inputs.LetterInputRouter>(true);
+
+            if (!registry && inputRouter)
+                registry = inputRouter.BoxesRegistry;
+
+            if (registry)
+            {
+                var root = target == Platform.PC ? uiPcRoot : uiMobileRoot;
+                if (root) registry.RebuildFromRoot(root.transform);
+            }
 
             if (inputRouter)
                 inputRouter.UseMobile(isMobile);

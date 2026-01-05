@@ -7,6 +7,7 @@ namespace Inputs
     public class LetterInputRouter : MonoBehaviour
     {
         [SerializeField] private BoxesRegistry boxesRegistry;
+        public BoxesRegistry BoxesRegistry => boxesRegistry;
 
         [Header("Inputs")]
         [SerializeField] private PcLetterInput pcInput;

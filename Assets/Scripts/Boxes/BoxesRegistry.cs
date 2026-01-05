@@ -1,35 +1,35 @@
-using System.Collections.Generic;
+using System;
+using System.Linq;
 using UnityEngine;
 using Letters;
 
 namespace Boxes
 {
-    public class BoxesRegistry : MonoBehaviour
+    public sealed class BoxesRegistry : MonoBehaviour
     {
-        [SerializeField] private List<ServiceBox> boxes = new();
+        [SerializeField] private ServiceBox[] boxes = new ServiceBox[4];
+        public ServiceBox[] Boxes => boxes;
 
-        private readonly Dictionary<SymbolType, ServiceBox> _map = new();
-
-        public IReadOnlyList<ServiceBox> Boxes => boxes;
-
-        private void Start()
+        public void RebuildFromRoot(Transform root)
         {
-            Rebuild();
-        }
+            if (root == null) return;
 
-        private void Rebuild()
-        {
-            _map.Clear();
-            foreach (var b in boxes)
+            var found = root.GetComponentsInChildren<ServiceBox>(true);
+            Array.Clear(boxes, 0, boxes.Length);
+
+            foreach (var b in found)
             {
-                if (b == null) continue;
-                _map[b.SymbolType] = b;
+                int idx = (int)b.SymbolType;
+                if (idx < 0 || idx >= boxes.Length) continue;
+                boxes[idx] = b;
             }
         }
 
         public ServiceBox GetBox(SymbolType type)
         {
-            return _map.GetValueOrDefault(type);
+            var idx = (int)type;
+            if (idx < 0 || idx >= boxes.Length) return null;
+            return boxes[idx];
         }
     }
 }

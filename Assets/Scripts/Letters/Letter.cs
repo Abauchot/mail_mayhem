@@ -106,6 +106,7 @@ namespace Letters
 
             _sampler.SetMaxSamples(maxSamples);
             _sampler.Reset();
+            
         }
 
         public void SetPointerInputEnabled(bool isenabled)
@@ -252,7 +253,6 @@ namespace Letters
 
                 yield return null;
             }
-
             canvasGroup.blocksRaycasts = true;
             StartReturnToSpawn();
         }

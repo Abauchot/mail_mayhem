@@ -24,7 +24,6 @@ namespace Letters.Throw
                 if (letterRect.Overlaps(boxRect, true))
                     return box;
             }
-
             return null;
         }
 

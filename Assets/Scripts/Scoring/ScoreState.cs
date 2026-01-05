@@ -22,12 +22,17 @@ namespace Scoring
             Multiplier = 1;
         }
 
-        public void RegisterCorrect(int basePoints)
+        public int RegisterCorrect(int basePoints)
         {
             Combo++;
             MaxCombo = System.Math.Max(MaxCombo, Combo);
+            
             Multiplier = _comboConfig.ComputeMultiplier(Combo);
-            Score += basePoints * Multiplier;
+            
+            int gained = basePoints * Multiplier;
+            Score += gained;
+
+            return gained;
         }
 
         public void RegisterWrong()

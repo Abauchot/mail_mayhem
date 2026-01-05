@@ -14,6 +14,7 @@ namespace Scoring
         private bool _subscribed;
         
         public event Action<ScoreSnapshot> OnScoreChanged;
+        public event Action<ScoreEvent> OnScoreEvent;
 
         public int Score => _state?.Score ?? 0;
         public int Combo => _state?.Combo ?? 0;
@@ -55,18 +56,40 @@ namespace Scoring
 
             if (result.isCorrect)
             {
-                _state.RegisterCorrect(session.CurrentMode.basePointPerCorrect);
+                int gained = _state.RegisterCorrect(session.CurrentMode.basePointPerCorrect);
+
+                OnScoreEvent?.Invoke(new ScoreEvent(
+                    true,
+                    gained,
+                    _state.Score,
+                    _state.Combo,
+                    _state.Multiplier
+                ));
             }
             else
             {
                 _state.RegisterWrong();
+
+                OnScoreEvent?.Invoke(new ScoreEvent(
+                    false,
+                    0,
+                    _state.Score,
+                    _state.Combo,
+                    _state.Multiplier
+                ));
             }
+
             Notify();
         }
         
         private void Notify()
         {
-            OnScoreChanged?.Invoke(new ScoreSnapshot(Score, Combo, Multiplier, MaxCombo));
+            OnScoreChanged?.Invoke(new ScoreSnapshot(
+                _state.Score,
+                _state. Combo,
+                _state. Multiplier,
+                _state.MaxCombo
+                ));
         }
     }
 }
