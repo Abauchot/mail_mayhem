@@ -6,8 +6,11 @@ namespace GameModes
 {
     public sealed class GameSessionController : MonoBehaviour
     {
-        [Header("Mode")] [SerializeField] private GameModeDefinition currentMode;
+        [Header("Mode")]
+        [SerializeField] private GameModeDefinition currentMode;
         public GameModeDefinition CurrentMode => currentMode;
+        
+        private GameModeDefinition _lastMode;
 
         [Header("Runtime state")] [SerializeField]
         private bool isRunning;
@@ -86,9 +89,15 @@ namespace GameModes
                 return;
             }
 
+            _lastMode = mode;
             currentMode = mode;
 
             ApplyModeToSpawner(mode);
+
+            if (spawner)
+            {
+                spawner.SetEnabled(true);
+            }
 
             scoreSystem?.ResetForRun(mode);
             runStatsTracker?.ResetStats();
@@ -131,7 +140,7 @@ namespace GameModes
             }
         }
 
-        public void EndRun()
+        private void EndRun()
         {
             if (!isRunning)
             {
@@ -139,6 +148,12 @@ namespace GameModes
             }
 
             isRunning = false;
+            
+            if (spawner)
+            {
+                spawner.SetEnabled(false);
+            }
+            
             float duration = Time.time - _runStartTime;
             Debug.Log($"Run ended: Mode={currentMode.displayName}, Duration={duration:0.00}s");
 
@@ -163,6 +178,16 @@ namespace GameModes
             // - Build RunResult
             // - Send to Leaderboard
             // - Show Summary UI
+        }
+        
+        public void RestartRun()
+        {
+            if (_lastMode == null)
+            {
+                Debug.LogWarning("RestartRun: No last mode to restart.");
+                return;
+            } 
+            StartRun(_lastMode);
         }
     }
 }

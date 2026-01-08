@@ -29,17 +29,8 @@ namespace Letters
 
         [HideInInspector] public LetterSpawner spawner;
 
-        [Header("Throw (tuning)")]
-        [SerializeField] private float minThrowSpeed = 900f;
-        [SerializeField] private float maxThrowSpeed = 3000f;
-        [SerializeField] private float friction = 6.5f;
-        [SerializeField] private float maxThrowDuration = 1.0f;
+        [Header("Animation")]
         [SerializeField] private float returnDuration = 0.15f;
-        [SerializeField] private float throwScale = 1.5f;
-        [SerializeField, Range(0f, 1f)] private float flickWeight = 0.75f;
-
-        [Header("Throw (sampling)")]
-        [SerializeField] private int maxSamples = 6;
 
         [Header("Feedback")]
         [SerializeField] private float incorrectShakeDuration = 0.14f;
@@ -60,13 +51,9 @@ namespace Letters
 
         private Boxes.BoxesRegistry _boxesRegistry;
 
-        private bool _pointerInputEnabled = true;
-        private Vector2 _lastLocalPointer;
-        private bool _isGrabbing;
         private bool _attemptResolved;
 
         // Services
-        private UiThrowSampler _sampler;
         private LetterHitDetector _hitDetector;
 
         private void Awake()
@@ -77,8 +64,6 @@ namespace Letters
 
             if (!envelopeImage) envelopeImage = GetComponent<Image>();
             if (!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
-
-            _sampler = new UiThrowSampler(maxSamples);
         }
 
         public void Setup(SymbolType type, LetterSpawner ownerSpawner, Boxes.BoxesRegistry boxesRegistry)
@@ -103,100 +88,17 @@ namespace Letters
 
             _state = LetterState.Idle;
             _attemptResolved = false;
-
-            _sampler.SetMaxSamples(maxSamples);
-            _sampler.Reset();
-            
         }
 
-        public void SetPointerInputEnabled(bool isenabled)
-        {
-            _pointerInputEnabled = isenabled;
-            if (canvasGroup)
-                canvasGroup.blocksRaycasts = isenabled;
-        }
-
-        public void Grab(Vector2 screenPos)
-        {
-            if (_state is LetterState.Throwing or LetterState.Feedback) return;
-
-            _spawnAnchoredPos = _rectTransform.anchoredPosition;
-            _rectTransform.SetAsLastSibling();
-
-            CancelActiveRoutine();
-
-            _sampler.Reset();
-            _sampler.BeginGrab(screenPos, Time.unscaledTime);
-
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.alpha = 0.8f;
-
-            _isGrabbing = true;
-            _lastLocalPointer = ScreenToLocalInParent(screenPos);
-
-            _state = LetterState.Dragging;
-        }
-
-        public void Move(Vector2 screenPos)
-        {
-            if (_state != LetterState.Dragging || !_isGrabbing) return;
-
-            _sampler.AddSample(screenPos, Time.unscaledTime);
-
-            var local = ScreenToLocalInParent(screenPos);
-            var delta = local - _lastLocalPointer;
-            _lastLocalPointer = local;
-
-            _rectTransform.anchoredPosition += delta;
-        }
-
-        public void Release(Vector2 screenPos)
-        {
-            if (_state != LetterState.Dragging || !_isGrabbing) return;
-
-            _isGrabbing = false;
-            canvasGroup.alpha = 1f;
-            canvasGroup.blocksRaycasts = true;
-
-            _sampler.AddSample(screenPos, Time.unscaledTime);
-
-            Vector2 velocity = _sampler.ComputeVelocity(_parentRect, _parentCanvas, flickWeight, throwScale);
-            float speed = velocity.magnitude;
-
-            if (speed < minThrowSpeed)
-            {
-                StartReturnToSpawn();
-                return;
-            }
-
-            if (speed > maxThrowSpeed)
-                velocity = velocity.normalized * maxThrowSpeed;
-
-            _activeRoutine = StartCoroutine(ThrowAndDetect(velocity));
-            _state = LetterState.Throwing;
-        }
-
-        private Vector2 ScreenToLocalInParent(Vector2 screenPos)
-        {
-            if (_parentRect == null) return Vector2.zero;
-            Camera cam = null;
-            if (_parentCanvas != null && _parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
-                cam = _parentCanvas.worldCamera;
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_parentRect, screenPos, cam, out var local);
-            return local;
-        }
-
-        // EventSystem
+        // EventSystem (PC keyboard uses SendToBox directly, these are kept for Unity UI compatibility)
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (!_pointerInputEnabled) return;
             _spawnAnchoredPos = _rectTransform.anchoredPosition;
             _rectTransform.SetAsLastSibling();
         }
-        public void OnBeginDrag(PointerEventData eventData) { if (_pointerInputEnabled) Grab(eventData.position); }
-        public void OnDrag(PointerEventData eventData) { if (_pointerInputEnabled) Move(eventData.position); }
-        public void OnEndDrag(PointerEventData eventData) { if (_pointerInputEnabled) Release(eventData.position); }
+        public void OnBeginDrag(PointerEventData eventData) { }
+        public void OnDrag(PointerEventData eventData) { }
+        public void OnEndDrag(PointerEventData eventData) { }
 
         private void StartReturnToSpawn()
         {
@@ -221,40 +123,6 @@ namespace Letters
                 StopCoroutine(_activeRoutine);
                 _activeRoutine = null;
             }
-        }
-
-        private IEnumerator ThrowAndDetect(Vector2 velocity)
-        {
-            _attemptResolved = false;
-            _state = LetterState.Throwing;
-            canvasGroup.blocksRaycasts = false;
-
-            float t = 0f;
-            while (t < maxThrowDuration)
-            {
-                float dt = Time.unscaledDeltaTime;
-                t += dt;
-
-                _rectTransform.anchoredPosition += velocity * dt;
-
-                float damp = Mathf.Exp(-friction * dt);
-                velocity *= damp;
-
-                var hitBox = _hitDetector?.FindHit(_rectTransform);
-                if (hitBox)
-                {
-                    canvasGroup.blocksRaycasts = true;
-                    hitBox.ResolveHit(this);
-                    yield break;
-                }
-
-                if (velocity.magnitude < 120f)
-                    break;
-
-                yield return null;
-            }
-            canvasGroup.blocksRaycasts = true;
-            StartReturnToSpawn();
         }
 
         // PC send

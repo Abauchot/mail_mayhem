@@ -11,116 +11,33 @@ namespace Inputs
 
         [Header("Inputs")]
         [SerializeField] private PcLetterInput pcInput;
-        [SerializeField] private MobileLetterInput mobileInput;
 
         private Letter _currentLetter;
-        private bool _useMobile;
 
         private void Awake()
         {
             if (!boxesRegistry) boxesRegistry = FindFirstObjectByType<BoxesRegistry>();
             if (!pcInput) pcInput = GetComponent<PcLetterInput>() ?? FindFirstObjectByType<PcLetterInput>();
-            if (!mobileInput) mobileInput = GetComponent<MobileLetterInput>() ?? FindFirstObjectByType<MobileLetterInput>();
-        }
-        
-        private void EnsureRefs()
-        {
-            if (!boxesRegistry) boxesRegistry = FindFirstObjectByType<BoxesRegistry>();
-            if (!pcInput) pcInput = GetComponent<PcLetterInput>() ?? FindFirstObjectByType<PcLetterInput>();
-            if (!mobileInput) mobileInput = GetComponent<MobileLetterInput>() ?? FindFirstObjectByType<MobileLetterInput>();
         }
 
         private void OnEnable()
         {
-            EnsureRefs();
-            ApplyBindings();
+            if (!boxesRegistry) boxesRegistry = FindFirstObjectByType<BoxesRegistry>();
+            if (!pcInput) pcInput = GetComponent<PcLetterInput>() ?? FindFirstObjectByType<PcLetterInput>();
+
+            if (!isActiveAndEnabled || !pcInput) return;
+            pcInput.enabled = true;
+            pcInput.OnSend += HandleSendToBox;
         }
 
         private void OnDisable()
         {
-            UnbindAll();
+            if (pcInput) pcInput.OnSend -= HandleSendToBox;
         }
 
         public void SetCurrentLetter(Letter letter)
         {
-              _currentLetter = letter;
-              if (_currentLetter)
-              {
-                  _currentLetter.SetPointerInputEnabled(!_useMobile);
-              }
-        }
-
-        public void UseMobile(bool useMobile)
-        {
-            _useMobile = useMobile;
-            if(_currentLetter != null)
-            {
-                _currentLetter.SetPointerInputEnabled(!_useMobile);
-            }
-            EnsureRefs();
-            ApplyBindings();
-        }
-
-        private void ApplyBindings()
-        {
-            if (!isActiveAndEnabled) return;
-
-            EnsureRefs();
-            UnbindAll();
-
-            if (_useMobile)
-            {
-                if (pcInput) pcInput.enabled = false;
-                
-                if (!mobileInput) return;
-                mobileInput.enabled = true;
-
-                mobileInput.OnGrab += HandleGrab;
-                mobileInput.OnMove += HandleMove;
-                mobileInput.OnRelease += HandleRelease;
-            }
-            else
-            {
-                if (mobileInput) mobileInput.enabled = false;
-                
-                if (!pcInput) return;
-                pcInput.enabled = true;
-
-                pcInput.OnSend += HandleSendToBox;
-            }
-        }
-
-        private void UnbindAll()
-        {
-            if (mobileInput)
-            {
-                mobileInput.OnGrab -= HandleGrab;
-                mobileInput.OnMove -= HandleMove;
-                mobileInput.OnRelease -= HandleRelease;
-            }
-
-            if (pcInput)
-            {
-                pcInput.OnSend -= HandleSendToBox;
-            }
-        }
-
-        private void HandleGrab(Vector2 screenPos)
-        {
-            if (_currentLetter == null) return;
-            _currentLetter.Grab(screenPos);
-        }
-
-        private void HandleMove(Vector2 screenPos)
-        {
-            if (_currentLetter == null) return;
-            _currentLetter.Move(screenPos);
-        }
-
-        private void HandleRelease(Vector2 screenPos)
-        {
-            if (_currentLetter == null) return;
-            _currentLetter.Release(screenPos);
+            _currentLetter = letter;
         }
 
         private void HandleSendToBox(SymbolType type)

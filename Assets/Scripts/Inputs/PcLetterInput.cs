@@ -8,13 +8,34 @@ namespace Inputs
     {
         private MailMayhem_Inputs _inputs;
         private bool _bound;
+        
+        [SerializeField] private GameModes.GameSessionController session;
 
         public event Action<SymbolType> OnSend;
         
-        private void OnLeft(UnityEngine.InputSystem.InputAction.CallbackContext _)  => OnSend?.Invoke(SymbolType.Square);
-        private void OnUp(UnityEngine.InputSystem.InputAction.CallbackContext _)    => OnSend?.Invoke(SymbolType.Triangle);
-        private void OnRight(UnityEngine.InputSystem.InputAction.CallbackContext _) => OnSend?.Invoke(SymbolType.Circle);
-        private void OnDown(UnityEngine.InputSystem.InputAction.CallbackContext _)  => OnSend?.Invoke(SymbolType.Diamond);
+        private void OnLeft(UnityEngine.InputSystem.InputAction.CallbackContext _)
+        {
+            if (session == null || !session.IsRunning) return;
+            OnSend?.Invoke(SymbolType.Square);
+        }
+
+        private void OnUp(UnityEngine.InputSystem.InputAction.CallbackContext _)
+        {
+            if (session == null || !session.IsRunning) return;
+            OnSend?.Invoke(SymbolType.Triangle);
+        }
+
+        private void OnRight(UnityEngine.InputSystem.InputAction.CallbackContext _)
+        {
+            if (session == null || !session.IsRunning) return;
+            OnSend?.Invoke(SymbolType.Circle);
+        }
+
+        private void OnDown(UnityEngine.InputSystem.InputAction.CallbackContext _)
+        {
+            if (session == null || !session.IsRunning) return;
+            OnSend?.Invoke(SymbolType.Diamond);
+        }
 
 
         private void EnsureInputs()

@@ -52,15 +52,11 @@ namespace Letters
             }
 
             if (!boxesRegistry)
+            {
                 boxesRegistry = FindFirstObjectByType<Boxes.BoxesRegistry>();
+            }
 
             _currentLetter = Instantiate(letterPrefab, spawnParent);
-
-#if UNITY_ANDROID || UNITY_IOS
-            _currentLetter.SetPointerInputEnabled(true);
-#else
-            _currentLetter.SetPointerInputEnabled(false);
-#endif
 
             var rt = _currentLetter.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0.5f);
@@ -75,8 +71,10 @@ namespace Letters
 
             _currentLetter.Setup(symbol, this, boxesRegistry);
 
-            if (inputRouter != null)
+            if (inputRouter)
+            {
                 inputRouter.SetCurrentLetter(_currentLetter);
+            }
         }
 
         public void OnLetterDestroyed(Letter letter)
@@ -89,5 +87,21 @@ namespace Letters
         }
 
         public void SetSpawnParent(RectTransform parent) => spawnParent = parent;
+
+        public void ClearCurrentLetter()
+        {
+            if (!_currentLetter)
+            {
+                return;
+            }
+            Destroy(_currentLetter.gameObject);
+            _currentLetter = null;
+        }
+
+        public void SetEnabled(bool enabled)
+        {
+            this.enabled = enabled;
+            if (!enabled) ClearCurrentLetter();
+        }
     }
 }
