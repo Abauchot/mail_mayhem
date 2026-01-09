@@ -32,6 +32,9 @@ namespace Boxes
         private void Awake()
         {
             _session = FindFirstObjectByType<GameModes.GameSessionController>();
+            
+            if (symbolImage == null && backgroundImage == null)
+                symbolImage = GetComponentInChildren<Image>();
         }
 
         private void Start()
@@ -42,6 +45,7 @@ namespace Boxes
         private void Reset()
         {
             rectTransform = GetComponent<RectTransform>();
+            symbolImage = GetComponentInChildren<Image>();
         }
 
         public void SetAcceptedSymbol(SymbolType newSymbol)
@@ -56,7 +60,10 @@ namespace Boxes
         private void UpdateVisual()
         {
             var targetImage = symbolImage != null ? symbolImage : backgroundImage;
-            if (targetImage == null) return;
+            if (targetImage == null)
+            {
+                return;
+            }
 
             Sprite newSprite = acceptedSymbolType switch
             {
@@ -68,7 +75,9 @@ namespace Boxes
             };
 
             if (newSprite != null)
+            {
                 targetImage.sprite = newSprite;
+            }
         }
 
         public void ResolveHit(Letters.Letter letter)

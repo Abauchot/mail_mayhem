@@ -1832,6 +1832,7 @@ GameObject:
   - component: {fileID: 1235511348}
   - component: {fileID: 1235511349}
   - component: {fileID: 1235511354}
+  - component: {fileID: 1235511355}
   m_Layer: 0
   m_Name: GameSystems
   m_TagString: Untagged
@@ -2030,6 +2031,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scoring.ScoreSystemListener
   eventsProvider: {fileID: 1235511351}
   session: {fileID: 1235511347}
+--- !u!114 &1235511355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235511340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2710d326c1f06146a76cc70dba55aa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Difficulty.SymbolPermutationController
+  config: {fileID: 11400000, guid: 263981a087c325046a339c3eee31d87f, type: 2}
+  boxesRegistry: {fileID: 1235511342}
+  scoreListener: {fileID: 1235511354}
 --- !u!1 &1249676640
 GameObject:
   m_ObjectHideFlags: 0

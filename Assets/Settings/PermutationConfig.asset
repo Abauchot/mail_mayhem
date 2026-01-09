@@ -24,12 +24,12 @@ MonoBehaviour:
   - scoreRequired: 5000
     chancePerDelivery: 0.5
   debug:
-    enabled: 0
-    forcePermutationEveryDelivery: 0
-    overrideChance: 0
+    enabled: 1
+    forcePermutationEveryDelivery: 1
+    overrideChance: 1
     forcedChance: 0
     forceSpecificSwap: 0
     swapSymbolA: 0
-    swapSymbolB: 0
+    swapSymbolB: 1
     disablePermutations: 0
-    logPermutations: 0
+    logPermutations: 1

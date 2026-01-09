@@ -89,5 +89,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Boxes.ServiceBox
   acceptedSymbolType: 0
-  backgroundImage: {fileID: 0}
+  squareSprite: {fileID: 4340143670946724112, guid: 9d1ccfe377532664db90458287d061bd, type: 3}
+  triangleSprite: {fileID: -9148079100729670451, guid: 8ed83247f125f28488612f8d7d29091f, type: 3}
+  circleSprite: {fileID: 6879785910209034016, guid: 4fe538d884530e94b84f4cec418d9843, type: 3}
+  diamondSprite: {fileID: -3989668330587312247, guid: 76ebb4d1a47240643829f04389a2cc70, type: 3}
+  symbolImage: {fileID: 8346985065261246082}
+  backgroundImage: {fileID: 8346985065261246082}
   rectTransform: {fileID: 157620672820077701}
