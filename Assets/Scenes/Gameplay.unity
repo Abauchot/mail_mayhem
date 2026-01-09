@@ -785,6 +785,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 157620672820077701, guid: 57c4bdb785ec5fe4c81a3547ca45d418, type: 3}
   m_PrefabInstance: {fileID: 669710490}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &669710492 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1156971858336361802, guid: 57c4bdb785ec5fe4c81a3547ca45d418, type: 3}
+  m_PrefabInstance: {fileID: 669710490}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097dd811686a200438fb124ef136f19e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boxes.ServiceBox
 --- !u!1 &677432601
 GameObject:
   m_ObjectHideFlags: 0
@@ -1097,7 +1108,7 @@ MonoBehaviour:
   m_MoveRepeatRate: 0.1
   m_XRTrackingOrigin: {fileID: 0}
   m_ActionsAsset: {fileID: -944628639613478452, guid: eba83daa4708d7a4fb72cd7a61e94dd2, type: 3}
-  m_PointAction: {fileID: 1086976432178890947, guid: eba83daa4708d7a4fb72cd7a61e94dd2, type: 3}
+  m_PointAction: {fileID: 4195700050757002472, guid: eba83daa4708d7a4fb72cd7a61e94dd2, type: 3}
   m_MoveAction: {fileID: 4195700050757002472, guid: eba83daa4708d7a4fb72cd7a61e94dd2, type: 3}
   m_SubmitAction: {fileID: 0}
   m_CancelAction: {fileID: 0}
@@ -1641,6 +1652,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 157620672820077701, guid: 57c4bdb785ec5fe4c81a3547ca45d418, type: 3}
   m_PrefabInstance: {fileID: 1135890136}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1135890138 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1156971858336361802, guid: 57c4bdb785ec5fe4c81a3547ca45d418, type: 3}
+  m_PrefabInstance: {fileID: 1135890136}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097dd811686a200438fb124ef136f19e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boxes.ServiceBox
 --- !u!1 &1207606760
 GameObject:
   m_ObjectHideFlags: 0
@@ -1778,6 +1800,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1207606760}
   m_CullTransparentMesh: 1
+--- !u!114 &1224921788 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1156971858336361802, guid: 57c4bdb785ec5fe4c81a3547ca45d418, type: 3}
+  m_PrefabInstance: {fileID: 689959582}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097dd811686a200438fb124ef136f19e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boxes.ServiceBox
 --- !u!1 &1235511340
 GameObject:
   m_ObjectHideFlags: 0
@@ -1834,10 +1867,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoxesRegistry
   boxes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1135890138}
+  - {fileID: 1224921788}
+  - {fileID: 669710492}
+  - {fileID: 2014875316}
 --- !u!114 &1235511343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1898,6 +1931,8 @@ MonoBehaviour:
   isRunning: 0
   scoreSystem: {fileID: 1235511354}
   spawner: {fileID: 1316036109}
+  permutationController: {fileID: 0}
+  boxesRegistry: {fileID: 0}
   runStatsTracker: {fileID: 1235511350}
 --- !u!114 &1235511348
 MonoBehaviour:
@@ -2857,6 +2892,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 157620672820077701, guid: 57c4bdb785ec5fe4c81a3547ca45d418, type: 3}
   m_PrefabInstance: {fileID: 2014875314}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2014875316 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1156971858336361802, guid: 57c4bdb785ec5fe4c81a3547ca45d418, type: 3}
+  m_PrefabInstance: {fileID: 2014875314}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097dd811686a200438fb124ef136f19e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boxes.ServiceBox
 --- !u!1 &2123983692
 GameObject:
   m_ObjectHideFlags: 0

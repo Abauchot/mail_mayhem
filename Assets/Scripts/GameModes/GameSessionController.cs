@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using Stats;
+using Difficulty;
+using Boxes;
 
 namespace GameModes
 {
@@ -19,6 +21,12 @@ namespace GameModes
 
         [SerializeField]
         private Letters.LetterSpawner spawner;
+
+        [SerializeField]
+        private SymbolPermutationController permutationController;
+
+        [SerializeField]
+        private BoxesRegistry boxesRegistry;
 
         //Time Attack 
         private float _timeLeft;
@@ -101,6 +109,10 @@ namespace GameModes
 
             scoreSystem?.ResetForRun(mode);
             runStatsTracker?.ResetStats();
+
+            boxesRegistry?.ResetMapping();
+            if (permutationController)
+                permutationController.SetConfig(mode.permutationConfig);
 
             isRunning = true;
             _runStartTime = Time.time;

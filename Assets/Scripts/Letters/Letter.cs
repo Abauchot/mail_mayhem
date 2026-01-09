@@ -43,6 +43,7 @@ namespace Letters
         private bool _topArcFlip;
 
         private LetterState _state = LetterState.Idle;
+        public LetterState State => _state;
         private RectTransform _rectTransform;
         private Canvas _parentCanvas;
         private RectTransform _parentRect;
@@ -89,8 +90,7 @@ namespace Letters
             _state = LetterState.Idle;
             _attemptResolved = false;
         }
-
-        // EventSystem (PC keyboard uses SendToBox directly, these are kept for Unity UI compatibility)
+        
         public void OnPointerDown(PointerEventData eventData)
         {
             _spawnAnchoredPos = _rectTransform.anchoredPosition;
@@ -124,11 +124,11 @@ namespace Letters
                 _activeRoutine = null;
             }
         }
-
-        // PC send
+        
         public void SendToBox(Boxes.ServiceBox box, float duration = 0.15f)
         {
             if (box == null) return;
+            if (_state != LetterState.Idle) return;
 
             _state = LetterState.Throwing;
             _attemptResolved = false;

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed11cb59e2543254c96b8f54e0d1c5df, type: 3}
+  m_Name: PermutationConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Difficulty.SymbolPermutationConfig
+  thresholds:
+  - scoreRequired: 0
+    chancePerDelivery: 0
+  - scoreRequired: 500
+    chancePerDelivery: 0.1
+  - scoreRequired: 1500
+    chancePerDelivery: 0.2
+  - scoreRequired: 3000
+    chancePerDelivery: 0.35
+  - scoreRequired: 5000
+    chancePerDelivery: 0.5
+  debug:
+    enabled: 0
+    forcePermutationEveryDelivery: 0
+    overrideChance: 0
+    forcedChance: 0
+    forceSpecificSwap: 0
+    swapSymbolA: 0
+    swapSymbolB: 0
+    disablePermutations: 0
+    logPermutations: 0

@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf4afd91895855f4eb79909d6dd04ae7, type: 3}
   m_Name: Game Mode Definition
   m_EditorClassIdentifier: Assembly-CSharp::GameModes.GameModeDefinition
-  mode: 1
-  displayName: Survival
+  mode: 0
+  displayName: Time Attack
   basePointPerCorrect: 100
   comboConfig: {fileID: 11400000, guid: 77f2aa9abddcb8748ba706cf999812b5, type: 2}
-  timeAttackDurationSeconds: 10
+  timeAttackDurationSeconds: 30
   maxMistakes: 3
   debug:
-    enabled: 0
-    forceSymbol: 0
+    enabled: 1
+    forceSymbol: 1
     forcedSymbol: 0
     freezeTime: 0
     infiniteMistakes: 0

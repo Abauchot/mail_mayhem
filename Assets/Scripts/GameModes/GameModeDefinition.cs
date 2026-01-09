@@ -1,5 +1,6 @@
 using UnityEngine;
 using Scoring;
+using Difficulty;
 
 namespace GameModes
 {
@@ -19,6 +20,10 @@ namespace GameModes
 
         [Header("Survival")]
         public int maxMistakes = 3;
+
+        [Header("Difficulty")]
+        [Tooltip("Symbol permutation settings. If null, permutations are disabled.")]
+        public SymbolPermutationConfig permutationConfig;
 
         [Header("Debug Overrides (Editor/Dev)")]
         public DebugOverrides debug;
